@@ -31,6 +31,7 @@ jobs:
         working-directory: test/dummy
         env:
           RAILS_ENV: production
+          SECRET_KEY_BASE_DUMMY: '1'
           BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.rails }}.gemfile
       - run: gem build blobatar-rails.gemspec
   browser:
@@ -67,3 +68,47 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+  demo:
+    runs-on: ubuntu-22.04
+    env:
+      BUNDLE_GEMFILE: test/dummy/Gemfile
+      BUNDLE_FROZEN: 'true'
+      RAILS_ENV: production
+      APP_URL: https://demo.laravel.cloud
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          rubygems: '3.6.9'
+          bundler: '2.6.9'
+          bundler-cache: true
+      - run: bundle exec ruby bin/rails assets:precompile
+        working-directory: test/dummy
+        env:
+          BUNDLE_GEMFILE: ${{ github.workspace }}/test/dummy/Gemfile
+          SECRET_KEY_BASE_DUMMY: '1'
+      - name: Serve production SSR and all importmap assets over IPv6
+        working-directory: test/dummy
+        env:
+          BUNDLE_GEMFILE: ${{ github.workspace }}/test/dummy/Gemfile
+        run: |
+          export SECRET_KEY_BASE="$(openssl rand -hex 64)"
+          bundle exec ruby bin/rails server -b :: -p 3000 > "$RUNNER_TEMP/demo.log" 2>&1 &
+          server=$!
+          trap 'kill "$server"; cat "$RUNNER_TEMP/demo.log"' EXIT
+          curl --noproxy '*' --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 1 'http://[::1]:3000/up'
+          bundle exec ruby -rnet/http -rjson -rnokogiri <<'RUBY'
+          http = Net::HTTP.new("::1", 3000, nil)
+          get = lambda do |path|
+            response = http.get(path, "Host" => "demo.laravel.cloud", "X-Forwarded-Proto" => "https")
+            abort "#{path}: #{response.code}" unless response.is_a?(Net::HTTPSuccess)
+            response.body
+          end
+          page = Nokogiri::HTML(get.call("/"))
+          abort "SSR avatars missing" unless page.css("svg").length >= 40
+          imports = JSON.parse(page.at_css('script[type="importmap"]').text).fetch("imports")
+          paths = imports.values + page.css('link[rel="stylesheet"]').map { |link| link["href"] }
+          paths.each { |path| abort "Nonlocal asset: #{path}" unless path.start_with?("/assets/"); get.call(path) }
+          puts "Production SSR and #{paths.length} local assets passed"
+          RUBY

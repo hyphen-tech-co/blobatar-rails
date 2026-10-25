@@ -16,7 +16,7 @@ npm run typecheck
 npm run test:browser
 ```
 
-TypeScript checks the public declaration contract and its usage fixture; implementation is JavaScript verified by the JS/browser suites. Start the demo with `(cd test/dummy && bundle exec ruby bin/rails server)`; it needs no database/auth/CDN and is not a production service.
+TypeScript checks the public declaration contract and its usage fixture; implementation is JavaScript verified by the JS/browser suites. Start the demo with `(cd test/dummy && bundle install && bundle exec ruby bin/rails server)`; it needs no database/auth/CDN. Its own Gemfile/lockfile is separate from the root development bundle. See [deployment.md](docs/deployment.md) for public demo hosting, not an application template.
 
 ## Compatibility matrix
 
@@ -25,7 +25,7 @@ BUNDLE_GEMFILE=gemfiles/rails71.gemfile ASSET_PIPELINE=sprockets bundle install
 BUNDLE_GEMFILE=gemfiles/rails71.gemfile ASSET_PIPELINE=sprockets bundle exec rake test
 ```
 
-Repeat for rails72, rails80, rails81 and propshaft/sprockets. Precompile from `test/dummy` with an absolute BUNDLE_GEMFILE and RAILS_ENV=production. Run `assets:clobber` before returning to development to avoid serving stale precompiled assets. The development Gemfile pins json < 3 because tested Rails encoders use the removed `quirks_mode` option. This is not an extra runtime dependency restriction imposed by the gem.
+Repeat for rails72, rails80, rails81 and propshaft/sprockets. Precompile from `test/dummy` with an absolute BUNDLE_GEMFILE, RAILS_ENV=production and SECRET_KEY_BASE_DUMMY=1 (asset compilation only). Run `assets:clobber` before returning to development to avoid serving stale precompiled assets. The development and demo Gemfiles pin json < 3 because tested Rails encoders use the removed `quirks_mode` option. This is not an extra runtime dependency restriction imposed by the gem.
 
 ## Updating upstream
 
