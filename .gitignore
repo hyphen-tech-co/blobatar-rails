@@ -6,6 +6,7 @@ test-results/
 playwright-report/
 *.gem
 Gemfile.lock
+!test/dummy/Gemfile.lock
 gemfiles/*.lock
 test/dummy/log/*
 test/dummy/tmp/*

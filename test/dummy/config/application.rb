@@ -8,7 +8,6 @@ module BlobatarDemo
   class Application < Rails::Application
     config.load_defaults Gem::Version.new(Rails.version) >= Gem::Version.new("8.0") ? 8.0 : 7.1
     config.eager_load = false
-    config.secret_key_base = "blobatar-demo-only-not-for-production-" * 3
     config.hosts = ["localhost", "127.0.0.1", "www.example.com"]
     config.assets.paths << root.join("app/javascript")
     config.assets.precompile += %w[application.js demo.js application.css] if config.assets.respond_to?(:precompile)
