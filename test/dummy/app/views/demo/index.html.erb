@@ -1,0 +1,29 @@
+<main data-controller="demo">
+  <header><a href="/" class="wordmark">blobatar<span> / rails</span></a><span class="badge">2.7.0 · Hotwire native</span></header>
+  <section class="hero">
+    <div><p class="eyebrow">SMALL FACES. REAL PERSONALITY.</p><h1>A little more<br>human, by default.</h1><p class="lede">Deterministic avatars. Fourteen expressions. Official motion.<br>All the character, without React or a build step.</p><a class="button" href="#playground">Meet your blobatar <span>↗</span></a></div>
+    <div class="hero-face"><%= blobatar_tag "rails-friend", size: 240, expression: :happy, animate: :always, gaze: :pointer, title: "Your friendly Rails blobatar" %><span class="orbit-label">Nice to see you.</span></div>
+  </section>
+  <section id="playground"><div class="section-heading"><div><p class="eyebrow">01 / PLAYGROUND</p><h2>One avatar. Every mood.</h2></div><p>Same seed, a different feeling.</p></div>
+    <div class="playground"><div class="stage"><%= blobatar_tag "agent-1", id: "expression-avatar", size: 220, animate: :always, title: "Expression playground" %><code>blobatar_tag "agent-1"</code></div>
+    <div class="controls">
+      <label>Expression<select id="expression" data-action="change->demo#expression"><% Blobatar::Rails::Options::EXPRESSIONS.each do |expression| %><option><%= expression %></option><% end %></select></label>
+      <label>Animation<select id="mode" data-action="change->demo#mode"><option value="always">Always</option><option value="hover">On hover</option><option value="false">Static</option></select></label>
+      <label>Background<select id="background" data-action="change->demo#background"><option>squircle</option><option>circle</option><option>square</option><option value="false">Transparent</option></select></label>
+      <label>Hue<input id="hue" type="range" min="0" max="360" value="210" data-action="input->demo#color"></label>
+      <label>Shape trait<input id="shape" type="range" min="0" max="0.999" step="0.001" value="0.1" data-action="input->demo#shape"></label>
+    </div></div>
+  </section>
+  <section><div class="section-heading"><div><p class="eyebrow">02 / THE EXPRESSION LIBRARY</p><h2>Say it without saying it.</h2></div><p>Every pose from the official library.</p></div>
+    <div class="expression-grid"><% Blobatar::Rails::Options::EXPRESSIONS.each do |expression| %><article data-expression="<%= expression %>"><%= blobatar_tag "expression-grid", size: 100, expression: expression, animate: :hover, title: expression %><span><%= expression %></span></article><% end %></div>
+  </section>
+  <section class="two-up"><div><p class="eyebrow">03 / MOTION</p><h2>Alive, on your terms.</h2><div class="mode-grid"><% [false, :hover, :always].each do |mode| %><div><%= blobatar_tag "mode", size: 100, animate: mode, id: "mode-#{mode}", title: "#{mode} animation" %><span><%= mode || "static" %></span></div><% end %></div></div>
+    <div><p class="eyebrow">04 / GAZE</p><h2>You have their attention.</h2><div class="gaze-demo"><%= blobatar_tag "gaze", id: "gaze-avatar", size: 140, animate: :always, gaze: :pointer, title: "Gaze follower" %><div class="stack"><% { "Pointer" => "pointer", "Button" => "#gaze-target", "Front" => "rest", "Release" => false, "Coordinate" => { x: 300, y: 200 } }.each do |label, target| %><button data-avatar="gaze-avatar" data-update="<%= { gaze: target }.to_json %>" data-action="demo#update"><%= label %></button><% end %><button id="gaze-target">Look here</button></div></div></div>
+  </section>
+  <section><div class="section-heading"><div><p class="eyebrow">05 / TURBO STREAMS</p><h2>Let your interface react.</h2></div><p>Server state → expression → a fleeting reaction.</p></div><div class="agent-panel">
+    <%= blobatar_tag "agent-avatar", id: "agent-avatar", size: 140, animate: :always, status: :idle, title: "Agent status" %>
+    <div><h3>Your background agent</h3><p id="agent-status" role="status" aria-live="polite">Ready when you are</p><div class="actions"><button class="button" data-outcome="success" data-action="demo#scenario">Run successful task</button><button data-outcome="error" data-action="demo#scenario">Simulate error</button></div></div>
+  </div></section>
+  <section class="two-up"><div><p class="eyebrow">06 / TURBO FRAMES</p><h2>A fresh face, no reload.</h2><%= turbo_frame_tag "avatar-frame" do %><%= blobatar_tag "frame-first", id: "frame-avatar", size: 110, animate: :hover, title: "Frame avatar" %><%= link_to "Replace frame ↗", frame_path(seed: "frame-next") %><% end %></div><div><p class="eyebrow">07 / A WHOLE CROWD</p><h2>Independently individual.</h2><div class="crowd"><% 24.times do |index| %><%= blobatar_tag "person-#{index}", size: 48, animate: index.even? ? false : :hover, title: "Person #{index}" %><% end %></div></div></section>
+  <footer><p>Rendered on Rails. Brought to life by Hotwire.</p><%= link_to "Test a Turbo visit →", other_path %><a href="https://github.com/Alain00/blobatar">Official blobatar ↗</a></footer>
+</main>

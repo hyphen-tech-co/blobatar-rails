@@ -1,0 +1,4 @@
+blobatar-rails bundles blobatar 2.7.0 (MIT), Copyright (c) 2026 Alain.
+See vendor/blobatar/LICENSE for the full upstream license.
+app/javascript/blobatar/vendor, vendor/blobatar/renderer.js and the motion/gaze
+parts of app/assets/stylesheets/blobatar.css are generated from that release.

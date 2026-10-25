@@ -1,0 +1,1 @@
+<%= turbo_frame_tag "avatar-frame" do %><%= blobatar_tag @seed, id: "frame-avatar", size: 110, animate: :always, expression: :wink, title: "Replacement avatar" %><%= link_to "Replace again ↗", frame_path(seed: "frame-#{@seed}") %><% end %>

@@ -1,0 +1,25 @@
+{
+  "name": "blobatar-rails-development",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "vendor": "node script/vendor.mjs",
+    "test": "node --import ./test/javascript/loader.mjs --test test/javascript/*.test.js",
+    "lint": "eslint app/javascript/blobatar/*.js script/*.mjs test/javascript/*.js test/browser/*.js test/dummy/app/javascript/**/*.js test/dummy/app/javascript/*.js playwright.config.js eslint.config.js",
+    "typecheck": "tsc --noEmit",
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.1",
+    "@hotwired/stimulus": "3.2.2",
+    "@hotwired/turbo": "8.0.23",
+    "@playwright/test": "1.56.1",
+    "blobatar": "2.7.0",
+    "esbuild": "0.25.11",
+    "eslint": "9.39.1",
+    "jsdom": "26.1.0",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
+    "typescript": "5.9.3"
+  }
+}

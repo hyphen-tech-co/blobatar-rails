@@ -1,0 +1,10 @@
+.blobatar { display: inline-block; vertical-align: middle; line-height: 0; }
+.blobatar > svg { display: block; max-width: 100%; }
+.blobatar .mo-still, .blobatar .mo-still * { animation: none !important; transition: none !important; }
+.blobatar .mo-still { --mo-amp: 0 !important; transform: none !important; }
+.blobatar .mo-root:not(.mo-always):not(:hover),
+.blobatar .mo-root:not(.mo-always):not(:hover) * { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .blobatar .mo-root, .blobatar .mo-root * { animation: none !important; transition: none !important; }
+  .blobatar .mo-root:hover { transform: none; }
+}
