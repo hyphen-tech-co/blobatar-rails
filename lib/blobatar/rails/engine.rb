@@ -1,4 +1,6 @@
 require "rails/engine"
+require "rails/application"
+require "action_controller/railtie"
 require "importmap-rails"
 require "stimulus-rails"
 require "turbo-rails"

@@ -4,7 +4,7 @@ module Blobatar
       EXPRESSIONS = %w[idle happy sad mad surprised wink sleepy smug unsure scared love shy sick thinking].freeze
       RENDER_KEYS = %w[size background backgroundColor hue tone traits palette normalize contrast title].freeze
       ALIASES = { "background_color" => "backgroundColor" }.freeze
-      COLORS = /\A(?:\#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?|[a-zA-Z]+|(?:rgb|rgba|hsl|hsla)\([\d\s.,%+\-\/]+\))\z/
+      COLORS = %r{\A(?:\#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?|[a-zA-Z]+|(?:rgb|rgba|hsl|hsla)\([\d\s.,%+\-/]+\))\z}
 
       def self.expression(value)
         value = value.to_s
@@ -23,9 +23,8 @@ module Blobatar
       end
 
       def self.number(value, key, min: nil, max: nil)
-        unless value.is_a?(Numeric) && value.finite? && (!min || value >= min) && (!max || value <= max)
-          raise ArgumentError, "invalid #{key}"
-        end
+        raise ArgumentError, "invalid #{key}" unless value.is_a?(Numeric) && value.finite? && (!min || value >= min) && (!max || value <= max)
+
         value
       end
 
@@ -46,17 +45,18 @@ module Blobatar
           when "hue", "tone" then number(value, key)
           when "background"
             result[key] = value.to_s if value.is_a?(Symbol)
-            unless [true, false, "square", "circle", "squircle"].include?(result[key])
-              raise ArgumentError, "invalid background"
-            end
+            raise ArgumentError, "invalid background" unless [true, false, "square", "circle", "squircle"].include?(result[key])
           when "backgroundColor" then color(value)
           when "palette"
             raise ArgumentError, "palette must be a Hash" unless value.is_a?(Hash)
+
             result[key] = value.transform_keys(&:to_s)
             raise ArgumentError, "unknown palette slot" unless (result[key].keys - %w[bg head eye]).empty?
+
             result[key].each_value { |entry| color(entry) }
           when "traits"
             raise ArgumentError, "traits must be a Hash" unless value.is_a?(Hash)
+
             result[key] = value.transform_keys(&:to_s)
             result[key].each_value { |entry| Array(entry).each { |item| number(item, "trait") } }
           when "normalize", "contrast"
@@ -83,6 +83,7 @@ module Blobatar
         unknown = values.keys - %w[expression status duration revert_to animate gaze options]
         raise ArgumentError, "unknown update keys: #{unknown.join(', ')}" unless unknown.empty?
         raise ArgumentError, "expression and status are mutually exclusive" if values.key?("expression") && values.key?("status")
+
         values["expression"] = expression(values["expression"]) if values.key?("expression")
         values["revert_to"] = expression(values["revert_to"]) if values.key?("revert_to")
         values["animate"] = animate(values["animate"]) if values.key?("animate")
@@ -90,7 +91,7 @@ module Blobatar
         values["options"] = render(values["options"]) if values.key?("options")
         if values.key?("status")
           values["status"] = values["status"].to_s
-          raise ArgumentError, "unknown status" unless Blobatar::Rails.configuration.states.keys.map(&:to_s).include?(values["status"])
+          raise ArgumentError, "status must not be empty" if values["status"].empty?
         end
         if values.key?("duration")
           number(values["duration"], "duration", min: 0, max: 86_400_000)

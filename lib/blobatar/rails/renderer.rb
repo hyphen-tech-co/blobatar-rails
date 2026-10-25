@@ -1,5 +1,4 @@
 require "mini_racer"
-require "thread"
 
 module Blobatar
   module Rails

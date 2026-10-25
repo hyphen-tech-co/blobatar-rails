@@ -1,0 +1,65 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  ruby:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        rails: [rails71, rails72, rails80, rails81]
+        pipeline: [propshaft, sprockets]
+        ruby: ['3.4']
+        include:
+          - rails: rails71
+            pipeline: sprockets
+            ruby: '3.1'
+    env:
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.rails }}.gemfile
+      ASSET_PIPELINE: ${{ matrix.pipeline }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: bundle exec rake test
+      - run: bundle exec ruby bin/rails assets:precompile
+        working-directory: test/dummy
+        env:
+          RAILS_ENV: production
+          BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.rails }}.gemfile
+      - run: gem build blobatar-rails.gemspec
+  browser:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        pipeline: [propshaft, sprockets]
+    env:
+      ASSET_PIPELINE: ${{ matrix.pipeline }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint && npm run typecheck && npm test
+      - run: bundle exec rubocop
+      - run: npm run vendor && git diff --exit-code -- app/javascript/blobatar/vendor vendor app/assets/stylesheets/blobatar.css
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-results-${{ matrix.pipeline }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

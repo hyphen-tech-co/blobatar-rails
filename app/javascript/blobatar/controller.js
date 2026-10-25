@@ -29,7 +29,7 @@ export default class extends Controller {
       document.addEventListener("turbo:load", this.onLoad);
       this.active = true;
       this.paint();
-      if (this.hasReactionValue) this.applyUpdate(this.reactionValue);
+      if (this.hasReactionValue) this.consumeReaction(this.reactionValue);
     });
   }
 
@@ -98,6 +98,10 @@ export default class extends Controller {
       if (this.machine.status) this.machine.apply({ status: this.machine.status });
     });
   }
-  reactionValueChanged(value) { if (this.active) this.guard(() => this.applyUpdate(value)); }
+  consumeReaction(value) {
+    this.applyUpdate(value);
+    this.element.removeAttribute("data-blobatar-reaction-value");
+  }
+  reactionValueChanged(value) { if (this.active && this.hasReactionValue) this.guard(() => this.consumeReaction(value)); }
   guard(callback) { try { callback(); } catch (error) { this.dispatch("error", { detail: { error } }); } }
 }

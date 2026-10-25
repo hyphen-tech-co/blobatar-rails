@@ -16,7 +16,7 @@ export class Avatar {
     this.svg.setAttribute("xmlns", NS);
     this.svg.setAttribute("viewBox", "0 0 100 100");
     this.root = this.svg.querySelector(":scope > .mo-root");
-    this.variables = new Set();
+    this.variables = new Set(Array.from(this.svg.style).filter((key) => key.startsWith("--mo-")));
     this.markup = this.root?.innerHTML;
   }
 
@@ -31,7 +31,18 @@ export class Avatar {
       this.svg.appendChild(this.root);
     }
     if (this.markup !== parts.inner) {
-      this.root.innerHTML = parts.inner;
+      const template = this.svg.ownerDocument.createElement("template");
+      // Apply upstream's inline declarations through CSSOM for strict CSP.
+      template.innerHTML = `<svg xmlns="${NS}">${parts.inner.replaceAll(" style=", " data-blobatar-style=")}</svg>`;
+      const contents = template.content.firstElementChild;
+      for (const element of contents.querySelectorAll("[data-blobatar-style]")) {
+        const style = this.svg.ownerDocument.createElement("span").style;
+        style.cssText = element.getAttribute("data-blobatar-style");
+        const declarations = Array.from(style, (key) => [key, style.getPropertyValue(key)]);
+        element.removeAttribute("data-blobatar-style");
+        for (const [key, value] of declarations) element.style.setProperty(key, value);
+      }
+      this.root.replaceChildren(...contents.childNodes);
       this.markup = parts.inner;
       geometryChanged = true;
     }

@@ -7,9 +7,7 @@ module Blobatar
       mode = Blobatar::Rails::Options.animate(animate)
       target = Blobatar::Rails::Options.gaze(gaze)
       mapping = (states || Blobatar::Rails.configuration.states).transform_keys(&:to_s).transform_values { |value| Blobatar::Rails::Options.expression(value) }
-      if status
-        expression = mapping.fetch(status.to_s) { raise ArgumentError, "unknown status: #{status}" }
-      end
+      expression = mapping.fetch(status.to_s) { raise ArgumentError, "unknown status: #{status}" } if status
       data = (attributes.delete(:data) || {}).dup
       data[:controller] = [data[:controller], "blobatar"].compact.join(" ")
       data.merge!(blobatar_name_value: name.to_s, blobatar_options_value: options.to_json,
@@ -18,6 +16,7 @@ module Blobatar
                   blobatar_status_value: status.to_s)
       attributes[:class] = ["blobatar", attributes[:class]].compact.join(" ")
       svg = Blobatar::Rails::Renderer.svg(name, options, expression: expression)
+      svg = svg.sub("<svg ", options["title"].present? ? '<svg role="img" ' : '<svg aria-hidden="true" ')
       tag.span(svg.html_safe, **attributes, data: data)
     end
   end
