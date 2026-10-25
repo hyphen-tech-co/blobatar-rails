@@ -1,0 +1,11 @@
+{
+  "version": "2.7.0",
+  "sha256": {
+    "blob.js": "83e04f3f1a1795b996b6d64f39562e80ae1ff957073298d43f4530369631ae7b",
+    "internal.js": "ba5864343d93eb1a2710fe6d8b5976c6bebe159e30e7aa69ea1c1905fabca8b7",
+    "expression.js": "56cc04164d8d004fb6985c1b118415b05617c086dcd8549b5bdd701e61c41731",
+    "gaze.js": "596ee6c36e029774f49830bd4bdae2124b8fd859ad44606e1d0b747edb86b2bd",
+    "motion.css": "99c7a2cff39a951826aa7a3550f15ed27c81a5cba6c6b7b107fe380fa581dca3",
+    "gaze.css": "8edaf27ce69341f2c153b596a4e6cdf269a39cfe3e3d08b60b18ddbac1e9499c"
+  }
+}

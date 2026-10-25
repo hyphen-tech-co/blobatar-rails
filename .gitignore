@@ -1,0 +1,13 @@
+.bundle/
+vendor/bundle/
+node_modules/
+coverage/
+test-results/
+playwright-report/
+*.gem
+Gemfile.lock
+gemfiles/*.lock
+test/dummy/log/*
+test/dummy/tmp/*
+test/dummy/public/assets/
+.DS_Store
