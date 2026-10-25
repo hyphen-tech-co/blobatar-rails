@@ -247,12 +247,14 @@ PLATFORMS
   arm-linux-musl
   arm64-darwin
   x86_64-darwin
+  x86_64-linux
   x86_64-linux-gnu
   x86_64-linux-musl
 
 DEPENDENCIES
   blobatar-rails!
   json (< 3)
+  libv8-node
   propshaft (~> 1.0)
   puma (~> 6.0)
   rails (~> 8.0.0)

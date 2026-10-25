@@ -2,6 +2,7 @@ source "https://rubygems.org"
 
 gem "blobatar-rails", path: "../.."
 gem "json", "< 3"
+gem "libv8-node", force_ruby_platform: RUBY_PLATFORM.start_with?("aarch64-linux")
 gem "propshaft", "~> 1.0"
 gem "puma", "~> 6.0"
 gem "rails", "~> 8.0.0"

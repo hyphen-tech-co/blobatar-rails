@@ -68,6 +68,40 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+  demo-arm64:
+    runs-on: ubuntu-24.04-arm
+    container: ruby:3.4-bookworm
+    timeout-minutes: 40
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/test/dummy/Gemfile
+      BUNDLE_FROZEN: 'true'
+      BUNDLE_WITHOUT: development:test
+      RAILS_ENV: production
+      APP_URL: https://demo.laravel.cloud
+      NJOBS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the frozen ARM64 production bundle
+        run: |
+          gem update --system 3.6.9 --no-document
+          gem install bundler -v 2.6.9 --no-document
+          bundle _2.6.9_ install
+      - run: bundle exec ruby bin/rails assets:precompile
+        working-directory: test/dummy
+        env:
+          SECRET_KEY_BASE_DUMMY: '1'
+      - name: Render every expression using native V8
+        working-directory: test/dummy
+        env:
+          SECRET_KEY_BASE_DUMMY: '1'
+        run: |
+          bundle exec ruby -r ./config/environment <<'RUBY'
+          Blobatar::Rails::Options::EXPRESSIONS.each do |expression|
+            svg = Blobatar::Rails::Renderer.svg("cloud-arm64", {}, expression: expression)
+            abort "SVG missing: #{expression}" unless svg.include?("<svg")
+          end
+          puts "ARM64 production renderer passed all expressions"
+          RUBY
   demo:
     runs-on: ubuntu-22.04
     env:
