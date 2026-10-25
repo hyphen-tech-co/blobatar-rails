@@ -133,6 +133,8 @@ CI defines Rails **7.1 / 7.2 / 8.0 / 8.1**, Propshaft/Sprockets, and Ruby 3.1/Ra
 
 Locally verified on Ruby **3.4.12**: Rails **7.1.6 / 7.2.4 / 8.0.5.1 / 8.1.4**, each with Propshaft and Sprockets (Ruby tests and production asset compilation). Full browser suites run on Rails 8.0.5.1 with both pipelines. Other patch versions are not claimed solely because dependency ranges permit them; CI exercises the currently resolved version in each supported minor.
 
+The minimum configuration is additionally verified on Ruby **3.1.7 / Rails 7.1.6 / Sprockets**, using Bundler 2.6.9. Use a currently maintained Ruby for new applications; the older runtime is a compatibility check, not a deployment recommendation.
+
 ### Known constraints
 
 - Official 2.7.0 is fixed. Unpublished 2.8.0 functionality (including its native backgroundColor option) is not claimed; the stable palette alias supplies background color.
