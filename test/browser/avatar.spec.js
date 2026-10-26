@@ -73,6 +73,31 @@ test("guide section links only scroll and preserve live example state and SVG no
   await expect(page.locator("#frame-avatar")).toHaveAttribute("data-blobatar-name-value", "frame-next");
 });
 
+test("guide live examples remain interactive after native section navigation", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await ready(page);
+  await page.evaluate(() => {
+    window.sectionChange = new Promise((resolve) => window.addEventListener("hashchange", () => resolve(), { once: true }));
+  });
+  await page.getByRole("navigation", { name: "On this page" }).getByRole("link", { name: "Expressions & motion" }).click();
+  await page.evaluate(() => window.sectionChange);
+  const originalStyle = await page.locator("#expression-avatar svg").getAttribute("style");
+  await page.locator("#expression").selectOption("mad");
+  await expect(page.locator("#expression-avatar")).toHaveAttribute("data-blobatar-current-expression", "mad");
+  await expect(page.locator("#expression-avatar svg")).not.toHaveAttribute("style", originalStyle);
+  await expect.poll(() => page.locator("#expression-avatar svg").evaluate((svg) => svg.getAnimations({ subtree: true }).filter((animation) => animation.playState === "running").length)).toBeGreaterThan(0);
+  await page.evaluate(() => {
+    window.sectionChange = new Promise((resolve) => window.addEventListener("hashchange", () => resolve(), { once: true }));
+  });
+  await page.getByRole("navigation", { name: "On this page" }).getByRole("link", { name: "Turbo Streams", exact: true }).click();
+  await page.evaluate(() => window.sectionChange);
+  await page.getByRole("button", { name: "Run successful task" }).click();
+  await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "thinking");
+  await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "love");
+  await expect(page.locator("#agent-status")).toHaveText("Completed successfully");
+  await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "happy");
+});
+
 test("importmap has no CDN or bundler requests, including under strict CSP", async ({ page }) => {
   await page.addInitScript(() => {
     window.cspViolations = [];
@@ -182,7 +207,7 @@ test("Turbo cache suspends timers, gaze and listeners without growth across visi
       registry.get(`${this === document ? "document" : "window"}:${name}`)?.delete(callback);
       return originalRemove.call(this, name, callback, options);
     };
-    window.listenerCounts = () => Object.fromEntries([...registry].filter(([name]) => /turbo:before-cache|turbo:load|pointermove|pointerleave|scroll|resize/.test(name)).map(([name, callbacks]) => [name, callbacks.size]));
+    window.listenerCounts = () => Object.fromEntries([...registry].filter(([name]) => /turbo:before-cache|turbo:load|hashchange|pointermove|pointerleave|scroll|resize/.test(name)).map(([name, callbacks]) => [name, callbacks.size]));
   });
   await ready(page);
   const baseline = await page.evaluate(() => window.listenerCounts());
