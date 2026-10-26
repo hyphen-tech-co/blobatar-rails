@@ -36,7 +36,7 @@ Repeat for rails72, rails80, rails81 and propshaft/sprockets. Precompile from `t
 5. Deliberately regenerate byte fixtures with `node script/fixtures.mjs --write` and visual snapshots with `npm run test:browser -- --update-snapshots` on Linux Chromium only after reviewing differences.
 6. Run both pipelines and the matrix. Never accept a version bump just because regeneration passed.
 
-Byte fixtures are generated independently from the pinned npm renderer, not the V8 bundle under test. Browser tests compare 14 static poses with that official renderer in a separate document: pixelmatch threshold 0.1, zero non-antialiased different pixels. Baked path rounding and CSS transforms produce tiny rasterization differences, so raw PNG byte equality is not required. Stored Linux Chromium snapshots independently detect regressions.
+Byte fixtures are generated independently from the pinned npm renderer, not the Ruby renderer under test. Browser tests compare 14 static poses with that official renderer in a separate document: pixelmatch threshold 0.1, zero non-antialiased different pixels. Baked path rounding and CSS transforms produce tiny rasterization differences, so raw PNG byte equality is not required. Stored Linux Chromium snapshots independently detect regressions.
 
 Lifecycle tests verify timer/driver cancellation and listener-count stability across repeated Turbo visits and detached controllers. This bounded test does not prove that browser heap growth is impossible. Static/hover lists avoid unnecessary continuously running loops.
 

@@ -139,8 +139,8 @@ The minimum configuration is additionally verified on Ruby **3.1.7 / Rails 7.1.6
 ### Known constraints
 
 - Official 2.7.0 is fixed. Unpublished 2.8.0 functionality (including its native backgroundColor option) is not claimed; the stable palette alias supplies background color.
-- MiniRacer/libv8-node is native: a supported prebuilt gem or native toolchain is required, but no Node executable/npm packages. Windows, JRuby, TruffleRuby have not been validated.
-- Dependency ranges permit Ruby ≥3.1 and Rails ≥7.1,<9; validated combinations are limited to the CI matrix. MiniRacer versions may require newer Ruby; Bundler selects a compatible version.
+- Server-side SVG rendering uses Ruby without V8, Node/npm or a native JavaScript engine. Windows, JRuby, TruffleRuby have not been validated.
+- Dependency ranges permit Ruby ≥3.1 and Rails ≥7.1,<9; validated combinations are limited to the CI matrix.
 - Only blob style from 2.7.0 is included. Framework-specific React/Vue hooks and unreleased features are not reimplemented; all fourteen expressions and listed motion/gaze targets are included.
 - Firefox/Safari/touch hardware are not in the browser matrix. Older browsers without modern CSS custom-property/transform support cannot be promised full motion fidelity.
 - Bounded lifecycle tests verify cleanup/listener stability, not an unbounded heap-leak proof.

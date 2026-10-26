@@ -1,6 +1,5 @@
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { build } from "esbuild";
 
 const base = new URL("../", import.meta.url);
 const upstream = new URL("node_modules/blobatar/", base);
@@ -15,9 +14,6 @@ for (const file of ["blob.js", "internal.js", "expression.js", "gaze.js", "motio
   await copyFile(new URL(`dist/${file}`, upstream), new URL(destination, base));
 }
 await copyFile(new URL("LICENSE", upstream), new URL("vendor/blobatar/LICENSE", base));
-// V8 does not expose Web APIs. This implements TextEncoder's replacement of lone surrogates.
-const encoder = `globalThis.TextEncoder = class { encode(s) { const a=[]; for(const c of s) { let n=c.codePointAt(0); if(n>=0xd800&&n<=0xdfff)n=0xfffd; if(n<128)a.push(n); else if(n<2048)a.push(192|(n>>6),128|(n&63)); else if(n<65536)a.push(224|(n>>12),128|((n>>6)&63),128|(n&63)); else a.push(240|(n>>18),128|((n>>12)&63),128|((n>>6)&63),128|(n&63)); } return new Uint8Array(a); } };`;
-await build({ entryPoints: [new URL("script/renderer-entry.js", base).pathname], bundle: true, format: "iife", globalName: "BlobatarRenderer", target: "es2020", minify: true, banner: { js: encoder }, outfile: new URL("vendor/blobatar/renderer.js", base).pathname });
 await writeFile(new URL("vendor/blobatar/checksums.json", base), JSON.stringify({ version: pkg.version, sha256: hashes }, null, 2) + "\n");
 const motion = await readFile(new URL("vendor/blobatar/motion.css", base), "utf8");
 const gaze = await readFile(new URL("vendor/blobatar/gaze.css", base), "utf8");

@@ -13,7 +13,6 @@ Gem::Specification.new do |spec|
   spec.metadata["rubygems_mfa_required"] = "true"
   spec.add_dependency "actionview", ">= 7.1", "< 9"
   spec.add_dependency "importmap-rails", "~> 2.0"
-  spec.add_dependency "mini_racer", "~> 0.19"
   spec.add_dependency "railties", ">= 7.1", "< 9"
   spec.add_dependency "stimulus-rails", "~> 1.3"
   spec.add_dependency "turbo-rails", ">= 2.0", "< 3"
