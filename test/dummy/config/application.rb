@@ -10,7 +10,7 @@ module BlobatarDemo
     config.eager_load = false
     config.hosts = ["localhost", "127.0.0.1", "www.example.com"]
     config.assets.paths << root.join("app/javascript")
-    config.assets.precompile += %w[application.js demo.js studio.js gallery.js application.css site.css] if config.assets.respond_to?(:precompile)
+    config.assets.precompile += %w[application.js demo.js studio.js gallery.js site.css] if config.assets.respond_to?(:precompile)
     config.action_controller.allow_forgery_protection = true
     config.content_security_policy do |policy|
       policy.default_src :self

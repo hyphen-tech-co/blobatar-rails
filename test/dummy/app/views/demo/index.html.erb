@@ -1,29 +1,81 @@
-<main data-controller="demo">
-  <header><a href="/" class="wordmark">blobatar<span> / rails</span></a><span class="badge">2.7.0 · Hotwire native</span></header>
-  <section class="hero">
-    <div><p class="eyebrow">SMALL FACES. REAL PERSONALITY.</p><h1>A little more<br>human, by default.</h1><p class="lede">Deterministic avatars. Fourteen expressions. Official motion.<br>All the character, without React or a build step.</p><a class="button" href="#playground">Meet your blobatar <span>↗</span></a></div>
-    <div class="hero-face"><%= blobatar_tag "rails-friend", size: 240, expression: :happy, animate: :always, gaze: :pointer, title: "Your friendly Rails blobatar" %><span class="orbit-label">Nice to see you.</span></div>
-  </section>
-  <section id="playground"><div class="section-heading"><div><p class="eyebrow">01 / PLAYGROUND</p><h2>One avatar. Every mood.</h2></div><p>Same seed, a different feeling.</p></div>
-    <div class="playground"><div class="stage"><%= blobatar_tag "agent-1", id: "expression-avatar", size: 220, animate: :always, title: "Expression playground" %><code>blobatar_tag "agent-1"</code></div>
-    <div class="controls">
-      <label>Expression<select id="expression" data-action="change->demo#expression"><% Blobatar::Rails::Options::EXPRESSIONS.each do |expression| %><option><%= expression %></option><% end %></select></label>
-      <label>Animation<select id="mode" data-action="change->demo#mode"><option value="always">Always</option><option value="hover">On hover</option><option value="false">Static</option></select></label>
-      <label>Background<select id="background" data-action="change->demo#background"><option>squircle</option><option>circle</option><option>square</option><option value="false">Transparent</option></select></label>
-      <label>Hue<input id="hue" type="range" min="0" max="360" value="210" data-action="input->demo#color"></label>
-      <label>Shape trait<input id="shape" type="range" min="0" max="0.999" step="0.001" value="0.1" data-action="input->demo#shape"></label>
-    </div></div>
-  </section>
-  <section><div class="section-heading"><div><p class="eyebrow">02 / THE EXPRESSION LIBRARY</p><h2>Say it without saying it.</h2></div><p>Every pose from the official library.</p></div>
-    <div class="expression-grid"><% Blobatar::Rails::Options::EXPRESSIONS.each do |expression| %><article data-expression="<%= expression %>"><%= blobatar_tag "expression-grid", size: 100, expression: expression, animate: :hover, title: expression %><span><%= expression %></span></article><% end %></div>
-  </section>
-  <section class="two-up"><div><p class="eyebrow">03 / MOTION</p><h2>Alive, on your terms.</h2><div class="mode-grid"><% [false, :hover, :always].each do |mode| %><div><%= blobatar_tag "mode", size: 100, animate: mode, id: "mode-#{mode}", title: "#{mode} animation" %><span><%= mode || "static" %></span></div><% end %></div></div>
-    <div><p class="eyebrow">04 / GAZE</p><h2>You have their attention.</h2><div class="gaze-demo"><%= blobatar_tag "gaze", id: "gaze-avatar", size: 140, animate: :always, gaze: :pointer, title: "Gaze follower" %><div class="stack"><% { "Pointer" => "pointer", "Button" => "#gaze-target", "Front" => "rest", "Release" => false, "Coordinate" => { x: 300, y: 200 } }.each do |label, target| %><button data-avatar="gaze-avatar" data-update="<%= { gaze: target }.to_json %>" data-action="demo#update"><%= label %></button><% end %><button id="gaze-target">Look here</button></div></div></div>
-  </section>
-  <section><div class="section-heading"><div><p class="eyebrow">05 / TURBO STREAMS</p><h2>Let your interface react.</h2></div><p>Server state → expression → a fleeting reaction.</p></div><div class="agent-panel">
-    <%= blobatar_tag "agent-avatar", id: "agent-avatar", size: 140, animate: :always, status: :idle, title: "Agent status" %>
-    <div><h3>Your background agent</h3><p id="agent-status" role="status" aria-live="polite">Ready when you are</p><div class="actions"><button class="button" data-outcome="success" data-action="demo#scenario">Run successful task</button><button data-outcome="error" data-action="demo#scenario">Simulate error</button></div></div>
-  </div></section>
-  <section class="two-up"><div><p class="eyebrow">06 / TURBO FRAMES</p><h2>A fresh face, no reload.</h2><%= turbo_frame_tag "avatar-frame" do %><%= blobatar_tag "frame-first", id: "frame-avatar", size: 110, animate: :hover, title: "Frame avatar" %><%= link_to "Replace frame ↗", frame_path(seed: "frame-next") %><% end %></div><div><p class="eyebrow">07 / A WHOLE CROWD</p><h2>Independently individual.</h2><div class="crowd"><% 24.times do |index| %><%= blobatar_tag "person-#{index}", size: 48, animate: index.even? ? false : :hover, title: "Person #{index}" %><% end %></div></div></section>
-  <footer><p>Rendered on Rails. Brought to life by Hotwire.</p><%= link_to "Test a Turbo visit →", other_path %><a href="https://github.com/Alain00/blobatar">Official blobatar ↗</a></footer>
+<% content_for :title, "Usage guide · blobatar-rails" %>
+<main class="guide" data-controller="demo" data-action="turbo:before-cache@document->demo#beforeCache">
+  <header class="guide-header"><a href="/">← blobatar-rails</a><nav aria-label="Guide navigation"><a href="/editor">Editor</a><a href="/components">Components</a><a href="https://github.com/hyphen-tech-co/blobatar-rails">GitHub ↗</a></nav></header>
+  <div class="guide-intro"><div><p class="guide-kicker">RAILS + HOTWIRE / DOCUMENTATION</p><h1>Usage guide</h1><p>From your first avatar to a reactive Rails interface.<br>Ruby renders the SVG. Hotwire brings it to life.</p></div><%= blobatar_tag "rails-guide", size: 96, expression: :happy, animate: :hover %></div>
+  <div class="guide-layout">
+    <aside class="guide-toc"><nav aria-label="On this page"><p>On this page</p><ol><% { installation: "Installation", rendering: "Render an avatar", appearance: "Appearance", expressions: "Expressions & motion", gaze: "Gaze", streams: "Turbo Streams", frames: "Frames & navigation", lists: "Lists", javascript: "JavaScript updates" }.each do |id, label| %><li><a href="#<%= id %>"><%= label %></a></li><% end %></ol></nav></aside>
+    <div class="guide-content">
+      <section id="installation" aria-labelledby="installation-title">
+        <p class="guide-kicker">01 / GET STARTED</p><h2 id="installation-title">Install once. No build step.</h2>
+        <p>Start with Rails 7.1–8.1 using <code>importmap-rails</code>, <code>stimulus-rails</code> and <code>turbo-rails</code>, with Propshaft or Sprockets. Add the gem from Git, then run the installer.</p>
+        <%= render "snippet", key: :gemfile, label: "Gemfile" %>
+        <%= render "snippet", key: :install, label: "Terminal" %>
+        <p class="guide-note">Not published to RubyGems. The SSH URL requires GitHub SSH access; HTTPS is also supported. The installer registers the Stimulus controller and links the bundled stylesheet. Keep your normal <code>javascript_importmap_tags</code>.</p>
+        <div class="guide-callout">No Node, npm, V8, CDN or JavaScript build step is needed in your application. All browser modules and styles ship with the gem.</div>
+      </section>
+      <section id="rendering" aria-labelledby="rendering-title">
+        <p class="guide-kicker">02 / YOUR FIRST AVATAR</p><h2 id="rendering-title">One helper. A stable identity.</h2>
+        <p>Use a stable name or user ID as the seed. The same seed and options produce the same avatar, rendered into the initial HTML even without JavaScript.</p>
+        <%= render "snippet", key: :basic, label: "app/views/agents/show.html.erb" %>
+        <div class="guide-example"><%= blobatar_tag "agent-1", size: 96, title: "Your assistant" %><p>This is the helper above, rendered by Ruby.<br><small><code>title:</code> gives the SVG an accessible name. Without it, the avatar is decorative.</small></p></div>
+      </section>
+      <section id="appearance" aria-labelledby="appearance-title">
+        <p class="guide-kicker">03 / MAKE IT YOURS</p><h2 id="appearance-title">Size, color and shape.</h2>
+        <p>Set appearance in the helper, or use the <a href="/editor">Editor</a> to choose shapes, tones and detailed traits, then copy the generated ERB. Named shape and tone choices in the Editor are converted to numeric <code>traits</code> for the Ruby API.</p>
+        <%= render "snippet", key: :appearance, label: "Appearance options" %>
+        <div class="guide-example"><%= blobatar_tag "agent-1", size: 96, hue: 12, background: :squircle, title: "Your assistant" %><p>The same identity, with a red hue and squircle background.</p></div>
+        <div class="guide-table-scroll" tabindex="0" role="region" aria-label="Appearance options"><table class="guide-table"><thead><tr><th>Option</th><th>Use</th></tr></thead><tbody>
+          <tr><td><code>size</code></td><td>Pixels, 1–4096. Omit to size with CSS.</td></tr>
+          <tr><td><code>hue</code></td><td>A numeric color angle, such as <code>12</code> or <code>210</code>.</td></tr>
+          <tr><td><code>background</code></td><td><code>false</code> (default), <code>:square</code>, <code>:circle</code> or <code>:squircle</code>.</td></tr>
+          <tr><td><code>traits</code></td><td>Numeric overrides or arrays of choices; use the Editor to generate them.</td></tr>
+          <tr><td><code>palette</code></td><td>Partial <code>{ bg:, head:, eye: }</code>. Explicit colors bypass automatic contrast guarantees.</td></tr>
+        </tbody></table></div>
+      </section>
+      <section id="expressions" aria-labelledby="expressions-title">
+        <p class="guide-kicker">04 / ADD PERSONALITY</p><h2 id="expressions-title">Expressions & motion.</h2>
+        <p>Pass one of the fourteen expressions. Animation is opt-in: <code>false</code> is static, <code>:hover</code> plays while hovered, and <code>:always</code> keeps it alive. Boolean <code>true</code> is not a supported mode.</p>
+        <%= render "snippet", key: :expression, label: "Expression and animation" %>
+        <div class="guide-example stage"><%= blobatar_tag "agent-1", id: "expression-avatar", size: 128, animate: :always, title: "Expression preview" %><div class="guide-controls"><label for="expression">Expression<select id="expression" data-action="change->demo#expression"><% Blobatar::Rails::Options::EXPRESSIONS.each do |expression| %><option><%= expression %></option><% end %></select></label><label for="mode">Animation<select id="mode" data-action="change->demo#mode"><option value="always">Always</option><option value="hover">On hover</option><option value="false">Static</option></select></label></div></div>
+        <div class="expression-grid guide-expressions"><% Blobatar::Rails::Options::EXPRESSIONS.each do |expression| %><article data-expression="<%= expression %>"><%= blobatar_tag "expression-grid", size: 64, expression: expression, animate: :hover, title: expression %><span><%= expression %></span></article><% end %></div>
+        <div class="guide-modes"><% [false, :hover, :always].each do |mode| %><div><%= blobatar_tag "mode", size: 64, animate: mode, id: "mode-#{mode}", title: "#{mode || 'static'} animation" %><code>animate: <%= mode ? ":#{mode}" : "false" %></code></div><% end %></div>
+        <p class="guide-note">Reduced-motion preferences disable animation and gaze. For large lists, prefer static or hover mode over animating every avatar.</p>
+      </section>
+      <section id="gaze" aria-labelledby="gaze-title">
+        <p class="guide-kicker">05 / FOLLOW THE INTERACTION</p><h2 id="gaze-title">Give them a point of focus.</h2>
+        <p>Gaze works with animation enabled on a fine-pointer browser. Choose <code>:pointer</code>, <code>:rest</code>, a CSS selector, client coordinates, or <code>false</code> to release it. Touch-only devices intentionally do not track gaze.</p>
+        <%= render "snippet", key: :gaze, label: "Pointer gaze" %>
+        <div class="guide-example"><%= blobatar_tag "gaze", id: "gaze-avatar", size: 96, animate: :always, gaze: :pointer, title: "Gaze follower" %><div class="guide-actions"><% { "Pointer" => "pointer", "Button" => "#gaze-target", "Front" => "rest", "Release" => false, "Coordinate" => { x: 300, y: 200 } }.each do |label, target| %><button type="button" data-avatar="gaze-avatar" data-update="<%= { gaze: target }.to_json %>" data-action="demo#update"><%= label %></button><% end %><button type="button" id="gaze-target">Look here</button></div></div>
+      </section>
+      <section id="streams" aria-labelledby="streams-title">
+        <p class="guide-kicker">06 / SERVER-DRIVEN REACTIONS</p><h2 id="streams-title">Update an avatar with Turbo Streams.</h2>
+        <p>Give the avatar a DOM <code>id</code>. Stream helpers target that existing element without replacing its SVG. Your application owns the request, background job or broadcast; the gem only updates the avatar.</p>
+        <%= render "snippet", key: :agent, label: "The target avatar" %>
+        <p>Return a loading state when work starts:</p><%= render "snippet", key: :loading, label: "Loading response · .turbo_stream.erb" %>
+        <p>On completion, set a base state and optionally add a temporary expression. This reaction lasts 1,200 ms, then returns to the success state (<code>:happy</code>).</p><%= render "snippet", key: :stream, label: "Success response · .turbo_stream.erb" %>
+        <div class="guide-example"><%= blobatar_tag "agent-avatar", id: "agent-avatar", size: 96, animate: :always, status: :idle, title: "Agent status" %><div><p id="agent-status" role="status" aria-live="polite">Ready when you are</p><div class="guide-actions"><button type="button" data-outcome="success" data-action="demo#scenario">Run successful task</button><button type="button" data-outcome="error" data-action="demo#scenario">Simulate error</button></div></div></div>
+        <p class="guide-note">Default states: <code>idle → idle</code>, <code>loading / thinking → thinking</code>, <code>success → happy</code>, <code>error → sad</code>, <code>warning → unsure</code>. Override the map with <code>states:</code> or an initializer. A new state cancels any older reaction timer.</p>
+      </section>
+      <section id="frames" aria-labelledby="frames-title">
+        <p class="guide-kicker">07 / NAVIGATE NORMALLY</p><h2 id="frames-title">Turbo Frames & cached visits.</h2>
+        <p>Put the helper inside a normal Turbo Frame. A replacement disconnects the old avatar and initializes the new one automatically. In this demo, <code>frame_path</code> returns the matching frame; in your app, use your own route and return the same frame ID.</p>
+        <%= render "snippet", key: :frame, label: "Frame view · .html.erb" %>
+        <div class="guide-example"><%= turbo_frame_tag "avatar-frame" do %><%= blobatar_tag "frame-first", id: "frame-avatar", size: 96, animate: :hover, title: "Frame avatar" %><%= link_to "Replace frame ↗", frame_path(seed: "frame-next") %><% end %></div>
+        <p>Before Turbo caches a page, the avatar stops its listeners, animation frames and reaction timers. Back navigation restores the base pose, not a stale one-shot reaction.</p><%= link_to "Test a Turbo visit →", other_path, class: "guide-text-link" %>
+      </section>
+      <section id="lists" aria-labelledby="lists-title">
+        <p class="guide-kicker">08 / USE REAL IDENTITIES</p><h2 id="lists-title">Render a list.</h2>
+        <p>Use each record’s stable ID, not its list position. The avatars remain distinct without uploading or storing image files. This example assumes your controller supplies <code>@users</code>.</p>
+        <%= render "snippet", key: :list, label: "A collection view" %>
+        <div class="guide-example crowd"><% 6.times do |index| %><%= blobatar_tag "person-#{index}", size: 40, animate: index.even? ? false : :hover, title: "Person #{index}" %><% end %></div>
+      </section>
+      <section id="javascript" aria-labelledby="javascript-title">
+        <p class="guide-kicker">09 / CLIENT-SIDE UPDATES</p><h2 id="javascript-title">Use an event, if you need one.</h2>
+        <p>From another Stimulus controller, dispatch <code>blobatar:update</code> on the avatar element. The same expressions, status, duration and gaze options work without a server round trip.</p>
+        <%= render "snippet", key: :javascript, label: "JavaScript · inside your controller" %>
+        <p class="guide-note">For all options, custom state maps, CSP configuration and manual installation, see the <a href="https://github.com/hyphen-tech-co/blobatar-rails#readme">README</a>. This independent Rails adapter bundles official Blobatar 2.7.0; it is not an official upstream package.</p>
+      </section>
+    </div>
+  </div>
+  <footer class="guide-footer"><span>blobatar-rails · Ruby SVG + Hotwire</span><a href="/">Back to the demo ↑</a></footer>
 </main>

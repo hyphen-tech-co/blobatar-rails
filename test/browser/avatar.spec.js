@@ -9,6 +9,41 @@ const expressions = ["idle", "happy", "sad", "mad", "surprised", "wink", "sleepy
 const ready = async (page) => { await page.goto("/hotwire"); await page.waitForFunction(() => window.Stimulus && document.querySelector("#agent-avatar .mo-root")); };
 const send = async (page, id, payload) => page.evaluate(({ id, payload }) => { document.getElementById(id).dispatchEvent(new CustomEvent("blobatar:update", { detail: payload })); }, { id, payload });
 
+test("usage guide has copyable literal code, section navigation and responsive Rails styling", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await ready(page);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Usage guide");
+  await expect(page).toHaveTitle("Usage guide · blobatar-rails");
+  const snippet = page.locator("#installation .guide-code").first();
+  const source = await snippet.locator("code").textContent();
+  await snippet.getByRole("button", { name: "Copy Gemfile", exact: true }).click();
+  await expect(snippet.getByRole("status")).toHaveText("Copied");
+  expect(await page.evaluate(() => window.navigator.clipboard.readText())).toBe(source);
+  await expect(page.locator("#rendering pre")).toContainText('<%= blobatar_tag "agent-1"');
+  await page.getByRole("navigation", { name: "On this page" }).getByRole("link", { name: "Turbo Streams", exact: true }).click();
+  await expect(page).toHaveURL(/#streams$/);
+  await expect(page.locator("#streams-title")).toBeInViewport();
+  for (const width of [320, 390, 768, 1280]) {
+    await page.setViewportSize({ width, height: 844 });
+    await ready(page);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect(await page.locator("body").evaluate((element) => window.getComputedStyle(element).backgroundColor)).toBe("rgb(240, 231, 233)");
+    for (const link of await page.locator(".guide-toc a").all()) {
+      const href = await link.getAttribute("href");
+      await expect(page.locator(href)).toHaveCount(1);
+    }
+  }
+});
+
+test("guide copy failures offer manual selection without losing the code", async ({ page }) => {
+  await page.addInitScript(() => { window.navigator.clipboard.writeText = async () => { throw new Error("Clipboard denied"); }; });
+  await ready(page);
+  const snippet = page.locator("#installation .guide-code").first();
+  await snippet.getByRole("button").click();
+  await expect(snippet.getByRole("status")).toContainText("Select the code");
+  await expect(snippet.locator("pre")).toContainText('gem "blobatar-rails"');
+});
+
 test("importmap has no CDN or bundler requests, including under strict CSP", async ({ page }) => {
   await page.addInitScript(() => {
     window.cspViolations = [];
@@ -19,7 +54,7 @@ test("importmap has no CDN or bundler requests, including under strict CSP", asy
   page.on("request", (request) => { if (!request.url().startsWith("http://127.0.0.1:3100")) external.push(request.url()); });
   await ready(page);
   await expect(page.locator(".expression-grid article")).toHaveCount(14);
-  await expect(page.locator(".crowd svg")).toHaveCount(24);
+  await expect(page.locator(".crowd svg")).toHaveCount(6);
   expect(errors).toEqual([]); expect(external).toEqual([]);
   expect(await page.evaluate(() => window.cspViolations)).toEqual([]);
 });
