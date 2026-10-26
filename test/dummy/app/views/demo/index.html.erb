@@ -3,7 +3,7 @@
   <header class="guide-header"><a href="/">← blobatar-rails</a><nav aria-label="Guide navigation"><a href="/editor">Editor</a><a href="/components">Components</a><a href="https://github.com/hyphen-tech-co/blobatar-rails">GitHub ↗</a></nav></header>
   <div class="guide-intro"><div><p class="guide-kicker">RAILS + HOTWIRE / DOCUMENTATION</p><h1>Usage guide</h1><p>From your first avatar to a reactive Rails interface.<br>Ruby renders the SVG. Hotwire brings it to life.</p></div><%= blobatar_tag "rails-guide", size: 96, expression: :happy, animate: :hover %></div>
   <div class="guide-layout">
-    <aside class="guide-toc"><nav aria-label="On this page"><p>On this page</p><ol><% { installation: "Installation", rendering: "Render an avatar", appearance: "Appearance", expressions: "Expressions & motion", gaze: "Gaze", streams: "Turbo Streams", frames: "Frames & navigation", lists: "Lists", javascript: "JavaScript updates" }.each do |id, label| %><li><a href="#<%= id %>"><%= label %></a></li><% end %></ol></nav></aside>
+    <aside class="guide-toc"><nav aria-label="On this page" data-turbo="false"><p>On this page</p><ol><% { installation: "Installation", rendering: "Render an avatar", appearance: "Appearance", expressions: "Expressions & motion", gaze: "Gaze", streams: "Turbo Streams", frames: "Frames & navigation", lists: "Lists", javascript: "JavaScript updates" }.each do |id, label| %><li><a href="#<%= id %>"><%= label %></a></li><% end %></ol></nav></aside>
     <div class="guide-content">
       <section id="installation" aria-labelledby="installation-title">
         <p class="guide-kicker">01 / GET STARTED</p><h2 id="installation-title">Install once. No build step.</h2>

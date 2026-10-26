@@ -44,6 +44,35 @@ test("guide copy failures offer manual selection without losing the code", async
   await expect(snippet.locator("pre")).toContainText('gem "blobatar-rails"');
 });
 
+test("guide section links only scroll and preserve live example state and SVG nodes", async ({ page }) => {
+  await ready(page);
+  await page.locator("#expression").selectOption("mad");
+  await page.getByRole("button", { name: "Run successful task" }).click();
+  await expect(page.locator("#agent-status")).toHaveText("Completed successfully");
+  await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "happy");
+  await page.getByRole("link", { name: "Replace frame" }).click();
+  await expect(page.locator("#frame-avatar")).toHaveAttribute("data-blobatar-name-value", "frame-next");
+  await page.evaluate(() => { window.guideAvatar = document.querySelector("#agent-avatar svg"); });
+  for (const link of await page.locator(".guide-toc a").all()) {
+    const href = await link.getAttribute("href");
+    await link.click();
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+    await expect(page.locator(`${href} h2`)).toBeInViewport();
+    await expect(page.locator("#agent-status")).toHaveText("Completed successfully");
+    await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "happy");
+    await expect(page.locator("#expression-avatar")).toHaveAttribute("data-blobatar-current-expression", "mad");
+    await expect(page.locator("#frame-avatar")).toHaveAttribute("data-blobatar-name-value", "frame-next");
+    expect(await page.evaluate(() => document.querySelector("#agent-avatar svg") === window.guideAvatar)).toBe(true);
+  }
+  await page.getByRole("link", { name: "Test a Turbo visit" }).click();
+  await expect(page).toHaveURL(/\/other$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/hotwire#javascript$/);
+  await expect(page.locator("#agent-status")).toHaveText("Completed successfully");
+  await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "happy");
+  await expect(page.locator("#frame-avatar")).toHaveAttribute("data-blobatar-name-value", "frame-next");
+});
+
 test("importmap has no CDN or bundler requests, including under strict CSP", async ({ page }) => {
   await page.addInitScript(() => {
     window.cspViolations = [];
