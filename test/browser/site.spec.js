@@ -93,6 +93,23 @@ test("official-style home has working name, named shapes, expressions, hue and b
   expect(errors).toEqual([]); expect(external).toEqual([]); expect(await page.evaluate(() => window.violations)).toEqual([]);
 });
 
+test("keyboard navigation focus stays clear of the branded heading at responsive widths", async ({ page }) => {
+  for (const width of [320, 390, 640, 768, 1023, 1280]) {
+    await page.setViewportSize({ width, height: 844 });
+    await ready(page, "/");
+    await page.keyboard.press("Tab");
+    const link = page.locator(".site-nav a").first();
+    await expect(link).toBeFocused();
+    const focusBottom = await link.evaluate((element) => {
+      const css = window.getComputedStyle(element);
+      return element.getBoundingClientRect().bottom + Number.parseFloat(css.outlineWidth) + Number.parseFloat(css.outlineOffset);
+    });
+    const heading = page.getByRole("heading", { name: "blobatar-rails", exact: true });
+    expect(focusBottom).toBeLessThan((await heading.boundingBox()).y);
+    expect(await heading.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  }
+});
+
 test("editor multi-select, sliders, pinning, shuffle, preview, snippet and query all share state", async ({ page }) => {
   await ready(page);
   await expect(page.locator(".panel-heading")).toContainText("nothing pinned");
@@ -157,7 +174,7 @@ test("mobile layouts fit and native popovers close with Escape; Turbo visits kee
     const heading = await page.locator(".hero h1").boundingBox();
     const navigation = await page.locator(".site-nav").boundingBox();
     const avatar = await page.locator(".hero-avatar").boundingBox();
-    expect(heading.y).toBe(48);
+    expect(heading.y).toBe(64);
     expect(navigation.y + navigation.height).toBeLessThanOrEqual(heading.y);
     expect(avatar.width).toBeCloseTo(width * 0.26, 0);
   }
