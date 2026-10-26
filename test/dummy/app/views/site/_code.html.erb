@@ -1,0 +1,14 @@
+<div class="config-heading"><span>your config</span><div class="config-tools">
+  <div class="segments" role="group" aria-label="Code format">
+    <% %w[erb ruby http].each_with_index do |format, index| %><button type="button" data-action="studio#format" data-format="<%= format %>" aria-pressed="<%= index.zero? %>"><%= format %></button><% end %>
+  </div>
+  <button type="button" class="icon-button" popovertarget="studio-export" aria-label="Export this blobatar" title="Export" data-action="studio#position"><%= studio_icon(:download) %></button>
+</div></div>
+<div class="code-box"><button type="button" class="copy-code icon-button" aria-label="Copy code" data-action="studio#copy"><%= studio_icon(:copy) %></button><pre><code data-studio-target="code">&lt;%= blobatar_tag <%= @name.to_json %>, animate: :hover %&gt;</code></pre></div>
+<p class="config-note" data-studio-target="note">Every option is optional except the name. SVG is rendered by Ruby, before JavaScript runs.</p>
+<% unless local_assigns[:editor] %><a class="quiet-link" href="/editor">Tune every trait in the editor <span aria-hidden="true">→</span></a><% end %>
+<div id="studio-export" popover class="popover-panel export-panel" role="menu" aria-label="Export avatar">
+  <button type="button" role="menuitem" data-action="studio#exportSvg"><span>SVG</span><small>scales to any size</small></button>
+  <button type="button" role="menuitem" data-action="studio#exportPng"><span>PNG</span><small>512 × 512 image</small></button>
+  <p>Motion is preview-only. Exports are static.</p>
+</div>

@@ -8,5 +8,5 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never" }]],
   use: { baseURL: "http://127.0.0.1:3100", trace: "retain-on-failure", screenshot: "only-on-failure" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 900 } } }],
-  webServer: { command: "bundle exec ruby test/dummy/bin/rails server -p 3100 -b 127.0.0.1", url: "http://127.0.0.1:3100", reuseExistingServer: false, timeout: 120000 }
+  webServer: { command: "bundle exec ruby test/dummy/bin/rails server -p 3100 -b 127.0.0.1 -P tmp/pids/playwright.pid", url: "http://127.0.0.1:3100", reuseExistingServer: false, timeout: 120000 }
 });

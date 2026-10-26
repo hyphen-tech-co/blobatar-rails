@@ -1,0 +1,4 @@
+<span class="presence-face presence-<%= state %>" role="img" aria-label="<%= name %>, <%= state %><%= ", #{unread} unread" if local_assigns[:unread] %>">
+  <%= blobatar_tag name, size: local_assigns.fetch(:size, 48), traits: { shape: [0.11, 0.54, 0.99] }, expression: state == 'thinking' ? :thinking : :idle, animate: :always, aria: { hidden: true } %>
+  <% if local_assigns[:unread] %><span class="unread"><%= unread > 99 ? '99+' : unread %></span><% end %><span class="presence-dot" aria-hidden="true"></span><% if state == 'thinking' %><span class="presence-loading" aria-hidden="true">•••</span><% end %>
+</span>

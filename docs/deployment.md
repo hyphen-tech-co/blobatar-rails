@@ -26,9 +26,9 @@ Choose the desired region and compute size before deploying; compute is billed w
 
 ## Verify the deployment
 
-- Confirm `/up` returns 200 and `/` renders the Rails demo over HTTPS.
+- Confirm `/up`, `/`, `/editor`, `/components` and `/hotwire` return 200 over HTTPS, including the initial Ruby-rendered previews without JavaScript.
 - Verify CSS and all importmap modules return successfully from `/assets/`, without a CDN or npm service.
-- Operate expression controls, rendering controls, Turbo Stream success/error and Turbo Frame replacement in a browser. Check for JavaScript errors and CSP violations.
+- Operate shapes, hue, tone multi-select, trait sliders, URL restoration, code/copy and SVG/PNG downloads. On `/components`, test password Show/Hide without submitting anything. On `/hotwire`, test Turbo Stream success/error and Turbo Frame replacement. Check for JavaScript errors and CSP violations.
 - Test hover and pointer gaze on a browser reporting a fine pointer. Shared desktop environments can report `hover:none / pointer:none`, which intentionally suppresses these upstream features.
 
 When switching local asset pipelines or returning from production asset compilation, clear precompiled output before starting development:

@@ -1,0 +1,25 @@
+<main>
+  <%= tag.section class: 'hero site-shell', data: studio_data, 'aria-label': 'Blobatar playground' do %>
+    <%= render 'nav' %>
+    <div class="hero-intro">
+      <div><h1>blobatar</h1><p class="hero-description">Deterministic geometric blobatars from any string. Ruby on the server. Hotwire in the browser.</p></div>
+      <div class="hero-playground">
+        <div class="name-sentence"><label for="seed">Let’s find your blobatar</label><span class="name-blank"><span data-studio-target="measure" aria-hidden="true"><%= @name.presence || 'someone' %></span><input id="seed" value="<%= @name %>" placeholder="someone" size="1" autocomplete="off" spellcheck="false" data-studio-target="name" data-action="input->studio#name"></span><button type="button" class="icon-button" popovertarget="hero-options" aria-label="Options" data-action="studio#position"><%= studio_icon(:tune) %></button></div>
+        <button type="button" class="hero-react" aria-label="React" data-action="studio#react"><%= blobatar_tag @name, **@options.symbolize_keys, expression: @expression, animate: @motion, gaze: :pointer, id: 'studio-preview', class: 'hero-avatar', title: "Blobatar for #{@name}", data: { studio_target: 'preview' } %></button>
+      </div>
+    </div>
+    <div class="hero-output"><div class="package-label">rails + hotwire</div><%= render 'install' %><div class="hero-code"><%= render 'code' %></div></div>
+    <div id="hero-options" popover class="popover-panel options-panel" aria-label="Avatar options">
+      <fieldset><legend>shape</legend><%= render 'shapes' %></fieldset>
+      <fieldset><legend>expression</legend><div class="tile-grid" role="group" aria-label="Expression">
+        <% Blobatar::Rails::Options::EXPRESSIONS.first(4).each do |pose| %><button type="button" class="avatar-tile" data-action="studio#expression" data-expression="<%= pose %>" aria-pressed="<%= @expression == pose %>"><span class="tile-face" data-studio-target="tile" data-kind="expression" data-value="<%= pose %>"><%= Blobatar::Rails::Renderer.svg(@name, @options, expression: pose).html_safe %></span><span><%= pose %></span></button><% end %>
+      </div><button type="button" class="more-expressions" popovertarget="all-expressions" data-action="studio#position" aria-label="10 more expressions">+10 more <span aria-hidden="true">›</span></button></fieldset>
+      <fieldset><legend>background</legend><div class="segments stretch" role="group" aria-label="Background"><% %w[none squircle circle square].each do |bg| %><button type="button" data-background="<%= bg %>" data-action="studio#background" aria-pressed="<%= (@options['background'] || 'none') == bg %>"><%= bg %></button><% end %></div></fieldset>
+      <fieldset><legend>hue</legend><div class="hue-row" role="group" aria-label="Hue"><button type="button" class="auto-chip" data-hue="auto" data-action="studio#hue" aria-pressed="<%= !@options.key?('hue') %>">auto</button><% SiteHelper::HUES.each do |hue| %><button type="button" class="hue-chip hue-<%= hue %>" data-hue="<%= hue %>" data-action="studio#hue" aria-label="Hue <%= hue %>" aria-pressed="<%= @options['hue'] == hue %>"></button><% end %></div></fieldset>
+    </div>
+    <div id="all-expressions" popover class="popover-panel expressions-panel" aria-label="All expressions"><div class="tile-grid" role="group" aria-label="All expressions"><% Blobatar::Rails::Options::EXPRESSIONS.each do |pose| %><button type="button" class="avatar-tile" data-expression="<%= pose %>" data-action="studio#expression" aria-pressed="<%= @expression == pose %>"><span class="tile-face" data-studio-target="tile" data-kind="expression" data-value="<%= pose %>"><%= Blobatar::Rails::Renderer.svg(@name, @options, expression: pose).html_safe %></span><span><%= pose %></span></button><% end %></div></div>
+    <p class="sr-only" role="status" aria-live="polite" data-studio-target="status"></p>
+  <% end %>
+  <%= render 'chat' %>
+  <%= render 'footer' %>
+</main>

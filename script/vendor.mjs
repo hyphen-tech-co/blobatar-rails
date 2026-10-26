@@ -7,7 +7,7 @@ const pkg = JSON.parse(await readFile(new URL("package.json", upstream)));
 if (pkg.version !== "2.7.0") throw new Error("Review upstream compatibility before changing the pin");
 await mkdir(new URL("app/javascript/blobatar/vendor/", base), { recursive: true });
 const hashes = {};
-for (const file of ["blob.js", "internal.js", "expression.js", "gaze.js", "motion.css", "gaze.css"]) {
+for (const file of ["index.js", "blob.js", "internal.js", "expression.js", "gaze.js", "motion.css", "gaze.css"]) {
   const content = await readFile(new URL(`dist/${file}`, upstream));
   hashes[file] = createHash("sha256").update(content).digest("hex");
   const destination = file.endsWith(".css") ? `vendor/blobatar/${file}` : `app/javascript/blobatar/vendor/${file}`;
