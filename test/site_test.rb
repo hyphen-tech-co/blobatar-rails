@@ -4,7 +4,8 @@ class SiteTest < ActionDispatch::IntegrationTest
   test "landing page is local SSR under CSP without a wall" do
     get "/"
     assert_response :success
-    assert_select "h1", text: "blobatar"
+    assert_select "h1", text: "blobatar-rails"
+    assert_select "title", text: "blobatar-rails / Rails + Hotwire"
     assert_select "#studio-preview svg[role=img]", count: 1
     assert_select "#hero-options button[data-shape]", count: 11
     assert_select "button[data-hue]", count: 9

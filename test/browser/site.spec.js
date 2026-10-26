@@ -8,6 +8,60 @@ const ready = async (page, path = "/editor") => {
   await page.waitForFunction(() => window.Stimulus && document.querySelector("#studio-preview .mo-root"));
 };
 const paths = (svg) => [...svg.matchAll(/ d="([^"]*)"/g)].map((match) => match[1]);
+const contrast = (foreground, background) => {
+  const luminance = (color) => {
+    const rgb = color.match(/[\d.]+/g).slice(0, 3).map((value) => {
+      const channel = Number(value) / 255;
+      return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+    });
+    return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+  };
+  const values = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
+  return (values[0] + 0.05) / (values[1] + 0.05);
+};
+
+test("Rails light palette keeps dark code, readable controls and unchanged avatar rendering", async ({ page }) => {
+  const style = (selector) => page.locator(selector).first().evaluate((element) => {
+    const css = window.getComputedStyle(element);
+    return { color: css.color, background: css.backgroundColor, border: css.borderTopColor, scheme: css.colorScheme };
+  });
+  for (const path of ["/", "/editor", "/components"]) {
+    await page.goto(path);
+    const body = await style("body");
+    expect(body.background).toBe("rgb(240, 231, 233)");
+    expect(body.color).toBe("rgb(38, 27, 35)");
+    expect(body.scheme).toBe("light");
+    expect(contrast(body.color, body.background)).toBeGreaterThanOrEqual(4.5);
+    const code = await style(".code-box");
+    const text = await style(".code-box code");
+    expect(code.background).toBe("rgb(38, 27, 35)");
+    expect(code.scheme).toBe("dark");
+    expect(contrast(text.color, code.background)).toBeGreaterThanOrEqual(4.5);
+  }
+  await ready(page, "/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("blobatar-rails");
+  await expect(page).toHaveTitle("blobatar-rails / Rails + Hotwire");
+  const caption = await style(".hero-description");
+  expect(contrast(caption.color, "rgb(240, 231, 233)")).toBeGreaterThanOrEqual(4.5);
+  const selected = await style('.segments button[aria-pressed="true"]');
+  expect(selected.background).toBe("rgb(211, 0, 1)");
+  expect(contrast(selected.color, selected.background)).toBeGreaterThanOrEqual(4.5);
+  await page.getByRole("button", { name: "Options", exact: true }).click();
+  const popover = await style("#hero-options");
+  expect(popover.background).toBe("rgb(255, 255, 255)");
+  const tile = await style('[data-shape="auto"]');
+  expect(contrast(tile.color, tile.background)).toBeGreaterThanOrEqual(4.5);
+  expect(contrast(tile.border, popover.background)).toBeGreaterThanOrEqual(3);
+  expect(paths(await page.locator("#studio-preview svg").evaluate((svg) => svg.outerHTML))).toEqual(paths(blobatar("alain00")));
+  await ready(page);
+  expect((await style(".editor-panel")).background).toBe("rgb(255, 255, 255)");
+  await page.goto("/components");
+  const input = await style("#demo-password");
+  expect(contrast(input.border, input.background)).toBeGreaterThanOrEqual(3);
+  for (const status of ["active", "invited"]) {
+    expect(contrast((await style(`.member-status[data-status="${status}"]`)).color, "rgb(255, 255, 255)")).toBeGreaterThanOrEqual(4.5);
+  }
+});
 
 test("official-style home has working name, named shapes, expressions, hue and background under CSP", async ({ page }) => {
   const errors = [], external = [];
@@ -119,7 +173,7 @@ test("mobile layouts fit and native popovers close with Escape; Turbo visits kee
   await page.locator("#editor-name").fill("cached-person");
   await page.locator('[data-shape="triangle"]').click();
   await expect(page.locator("[data-studio-target=code]")).toContainText("cached-person");
-  await page.getByRole("link", { name: "← blobatar", exact: true }).click();
+  await page.getByRole("link", { name: "← blobatar-rails", exact: true }).click();
   await expect(page).toHaveURL("/");
   await page.goBack();
   await expect(page.locator("#editor-name")).toHaveValue("cached-person");
@@ -151,7 +205,7 @@ test("official component compositions, agent selection and password privacy work
   await expect(face).toHaveAttribute("data-blobatar-current-expression", "idle");
   expect(requests).toEqual([]); expect(errors).toEqual([]);
   expect(await page.evaluate(() => window.location.href + JSON.stringify(window.localStorage) + JSON.stringify(window.sessionStorage))).not.toContain("not-a-real-secret");
-  await page.getByRole("link", { name: "← blobatar", exact: true }).click();
+  await page.getByRole("link", { name: "← blobatar-rails", exact: true }).click();
   await expect(page).toHaveURL("/");
   await expect(page.locator("#seed")).toBeVisible();
   await page.goBack();
