@@ -1,0 +1,17 @@
+<main class="components-shell" data-controller="gallery">
+  <a class="quiet-link" href="/">← blobatar-rails</a>
+  <div class="components-heading"><h1>Components</h1><p>Five pieces of interface built on blobatar, composed with Rails helpers and Stimulus. The name still makes the face; the composition is the part you will want to edit.</p></div>
+  <div class="install-line"><code>$ bundle add blobatar-rails --github hyphen-tech-co/blobatar-rails</code><button type="button" class="icon-button" aria-label="Copy install command" data-action="gallery#copy" data-copy="bundle add blobatar-rails --github hyphen-tech-co/blobatar-rails"><%= studio_icon(:copy) %></button></div>
+  <p class="gallery-install-note">Once, per project. These examples use the same Rails helper.</p>
+  <% examples = [['presence-avatar', 'Presence avatar', 'One face, plus whether the person is there and how much is waiting. Every state blinks and breathes; thinking also gets the loading indicator.'], ['agent-list', 'Agent list', 'The aside an agent runner needs. Agents are spawned rather than registered, so there is no avatar to upload: the name is all there is, and it is enough.'], ['user-table', 'User table', 'A face per row is the one column that differs for every row without being text, which is what makes a row findable on the way back.'], ['password-field', 'Password field', 'It watches the caret while the dots are up, and looks away the moment you ask to read your own password back.'], ['group-chat', 'Group chat', 'Names in a thread are read once and then skipped. What actually carries who said what is the left column.']] %>
+  <div class="showcase-grid"><aside class="showcase-sidebar"><nav aria-label="Components"><% examples.each do |id, title, _| %><a href="#<%= id %>"><%= title %></a><% end %></nav></aside><div class="showcase-content">
+    <% examples.each do |id, title, blurb| %><section id="<%= id %>" class="showcase-section"><h2><%= title %></h2><p><%= blurb %></p><div class="code-box"><pre><code><%= case id
+      when 'presence-avatar' then 'blobatar_tag user.handle, size: 48, status: :thinking, animate: :always'
+      when 'agent-list' then 'blobatar_tag agent.name, size: 32, status: agent.status, animate: :always'
+      when 'user-table' then 'blobatar_tag user.email, size: 32, title: user.name'
+      when 'password-field' then 'blobatar_tag "alain00", size: 160, gaze: :pointer, animate: :always'
+      else 'blobatar_tag message.author, size: 36, animate: :hover'
+      end %></code></pre></div><div class="showcase-frame"><%= render "gallery_#{id.tr('-', '_')}" %></div></section><% end %>
+  </div></div>
+  <p class="sr-only" role="status" aria-live="polite" data-gallery-target="status"></p><%= render 'footer' %>
+</main>

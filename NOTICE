@@ -1,4 +1,10 @@
 blobatar-rails bundles blobatar 2.7.0 (MIT), Copyright (c) 2026 Alain.
 See vendor/blobatar/LICENSE for the full upstream license.
-app/javascript/blobatar/vendor, vendor/blobatar/renderer.js and the motion/gaze
-parts of app/assets/stylesheets/blobatar.css are generated from that release.
+The Ruby SVG renderer is based on that release. app/javascript/blobatar/vendor
+and the motion/gaze parts of app/assets/stylesheets/blobatar.css are generated
+from it.
+
+The demo's visual design and controls are adapted from the MIT-licensed
+Blobatar website, Copyright (c) 2026 Alain. See vendor/blobatar/LICENSE.
+Self-hosted Geist and Geist Mono fonts are licensed under the SIL
+Open Font License 1.1; their notices are in docs/licenses/.

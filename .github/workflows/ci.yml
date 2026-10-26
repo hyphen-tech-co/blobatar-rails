@@ -68,6 +68,39 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+  demo-arm64:
+    runs-on: ubuntu-24.04-arm
+    container: ruby:3.4-bookworm
+    timeout-minutes: 15
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/test/dummy/Gemfile
+      BUNDLE_FROZEN: 'true'
+      BUNDLE_WITHOUT: development:test
+      RAILS_ENV: production
+      APP_URL: https://demo.laravel.cloud
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the frozen ARM64 production bundle
+        run: |
+          gem update --system 3.6.9 --no-document
+          gem install bundler -v 2.6.9 --no-document
+          bundle _2.6.9_ install
+      - run: bundle exec ruby bin/rails assets:precompile
+        working-directory: test/dummy
+        env:
+          SECRET_KEY_BASE_DUMMY: '1'
+      - name: Render every expression with Ruby
+        working-directory: test/dummy
+        env:
+          SECRET_KEY_BASE_DUMMY: '1'
+        run: |
+          bundle exec ruby -r ./config/environment <<'RUBY'
+          Blobatar::Rails::Options::EXPRESSIONS.each do |expression|
+            svg = Blobatar::Rails::Renderer.svg("cloud-arm64", {}, expression: expression)
+            abort "SVG missing: #{expression}" unless svg.include?("<svg")
+          end
+          puts "ARM64 production Ruby renderer passed all expressions"
+          RUBY
   demo:
     runs-on: ubuntu-22.04
     env:
@@ -106,7 +139,10 @@ jobs:
             response.body
           end
           page = Nokogiri::HTML(get.call("/"))
-          abort "SSR avatars missing" unless page.css("svg").length >= 40
+          abort "Landing SSR preview missing" unless page.at_css("#studio-preview svg")
+          abort "Hotwire SSR avatars missing" unless Nokogiri::HTML(get.call("/hotwire")).css("svg").length >= 40
+          abort "Editor SSR preview missing" unless Nokogiri::HTML(get.call("/editor")).at_css("#studio-preview svg")
+          abort "Component examples missing" unless Nokogiri::HTML(get.call("/components")).css(".showcase-section").length == 5
           imports = JSON.parse(page.at_css('script[type="importmap"]').text).fetch("imports")
           paths = imports.values + page.css('link[rel="stylesheet"]').map { |link| link["href"] }
           paths.each { |path| abort "Nonlocal asset: #{path}" unless path.start_with?("/assets/"); get.call(path) }

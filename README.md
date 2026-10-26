@@ -128,7 +128,9 @@ bundle install
 bundle exec ruby bin/rails server
 ```
 
-From a repository checkout, the Ruby 3.4 / Rails 8.0 demo includes all expressions, animation modes, pointer/element/coordinate gaze, hue/background/traits, Turbo Stream loading → success/error reactions, Turbo Frame replacement and independent avatars. Its separate Gemfile/lockfile keeps the hosted demo reproducible without installing the gem's development tools. No npm or database is needed to run it. See [Laravel Cloud deployment](docs/deployment.md) to publish this demo; it is not a production app template.
+From a repository checkout, the Ruby 3.4 / Rails 8.0 demo provides an upstream-inspired landing page at `/`, an `/editor` with ten named shapes, six tones, multi-select trait overrides, live code and SVG/PNG downloads, and five compositions at `/components` (presence, agent list, members table, caret-following password field and group chat). Fonts and browser modules are self-hosted; the site is ERB/Stimulus, not a React or shadcn runtime. There is no wall, posting API or persistence. The password example never submits or stores its input.
+
+The original integration testbed remains at `/hotwire`: all expressions, animation modes, pointer/element/coordinate gaze, Turbo Stream loading → success/error reactions, Turbo Frame replacement and independent avatars. `/avatar` returns Ruby-rendered SVG for the editor's HTTP example. Its separate Gemfile/lockfile keeps the hosted demo reproducible without installing the gem's development tools. No npm or database is needed to run it. See [Laravel Cloud deployment](docs/deployment.md) to publish this demo; it is not a production app template.
 
 CI defines Rails **7.1 / 7.2 / 8.0 / 8.1**, Propshaft/Sprockets, and Ruby 3.1/Rails 7.1 minimum checks. Browser/visual tests use Linux Chromium. See [CONTRIBUTING.md](CONTRIBUTING.md) for commands/test boundaries and [docs/upstream.md](docs/upstream.md) for API research and architecture.
 
@@ -139,8 +141,8 @@ The minimum configuration is additionally verified on Ruby **3.1.7 / Rails 7.1.6
 ### Known constraints
 
 - Official 2.7.0 is fixed. Unpublished 2.8.0 functionality (including its native backgroundColor option) is not claimed; the stable palette alias supplies background color.
-- MiniRacer/libv8-node is native: a supported prebuilt gem or native toolchain is required, but no Node executable/npm packages. Windows, JRuby, TruffleRuby have not been validated.
-- Dependency ranges permit Ruby ≥3.1 and Rails ≥7.1,<9; validated combinations are limited to the CI matrix. MiniRacer versions may require newer Ruby; Bundler selects a compatible version.
+- Server-side SVG rendering uses Ruby without V8, Node/npm or a native JavaScript engine. Windows, JRuby, TruffleRuby have not been validated.
+- Dependency ranges permit Ruby ≥3.1 and Rails ≥7.1,<9; validated combinations are limited to the CI matrix.
 - Only blob style from 2.7.0 is included. Framework-specific React/Vue hooks and unreleased features are not reimplemented; all fourteen expressions and listed motion/gaze targets are included.
 - Firefox/Safari/touch hardware are not in the browser matrix. Older browsers without modern CSS custom-property/transform support cannot be promised full motion fidelity.
 - Bounded lifecycle tests verify cleanup/listener stability, not an unbounded heap-leak proof.

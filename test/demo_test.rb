@@ -2,7 +2,7 @@ require "test_helper"
 
 class DemoTest < ActionDispatch::IntegrationTest
   test "demo serves SSR SVG and only local importmap assets under CSP" do
-    get "/"
+    get "/hotwire"
     assert_response :success
     assert_select "svg", minimum: 40
     assert_select "script[type=importmap]", count: 1

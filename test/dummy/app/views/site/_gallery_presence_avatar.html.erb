@@ -1,0 +1,1 @@
+<div class="presence-demo"><% [['laura', 'online', nil], ['ivan', 'online', 3], ['svea', 'thinking', nil], ['tobias', 'away', nil], ['noor', 'offline', 128]].each do |name, state, unread| %><div><%= render 'presence', name: name, state: state, unread: unread %><small><%= state %><%= ", #{unread} unread" if unread %></small></div><% end %></div>

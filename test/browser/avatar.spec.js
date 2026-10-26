@@ -6,7 +6,7 @@ import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
 
 const expressions = ["idle", "happy", "sad", "mad", "surprised", "wink", "sleepy", "smug", "unsure", "scared", "love", "shy", "sick", "thinking"];
-const ready = async (page) => { await page.goto("/"); await page.waitForFunction(() => window.Stimulus && document.querySelector("#agent-avatar .mo-root")); };
+const ready = async (page) => { await page.goto("/hotwire"); await page.waitForFunction(() => window.Stimulus && document.querySelector("#agent-avatar .mo-root")); };
 const send = async (page, id, payload) => page.evaluate(({ id, payload }) => { document.getElementById(id).dispatchEvent(new CustomEvent("blobatar:update", { detail: payload })); }, { id, payload });
 
 test("importmap has no CDN or bundler requests, including under strict CSP", async ({ page }) => {

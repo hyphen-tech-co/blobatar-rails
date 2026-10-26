@@ -1,0 +1,8 @@
+<div class="tile-grid" role="group" aria-label="Shape">
+  <% { auto: nil }.merge(SiteHelper::SHAPES).each do |shape, value| %>
+    <button type="button" class="avatar-tile" data-action="studio#shape" data-shape="<%= shape %>" data-value="<%= value %>" aria-pressed="<%= value.nil? ? @pinned['shape'].nil? : Array(@pinned['shape']).include?(value) %>">
+      <span class="tile-face" data-studio-target="tile" data-kind="shape" data-value="<%= value %>"><%= Blobatar::Rails::Renderer.svg(@name, @options.merge('traits' => @pinned.merge(value ? { 'shape' => value } : {}).except(*(value ? [] : ['shape'])))).html_safe %></span>
+      <span><%= shape %></span><span class="selected-check" aria-hidden="true">✓</span>
+    </button>
+  <% end %>
+</div>

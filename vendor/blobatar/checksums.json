@@ -1,6 +1,7 @@
 {
   "version": "2.7.0",
   "sha256": {
+    "index.js": "3d3548400eb6553d78580172e409a14f1ccc27ed74bf45833b47103bf35a6e28",
     "blob.js": "83e04f3f1a1795b996b6d64f39562e80ae1ff957073298d43f4530369631ae7b",
     "internal.js": "ba5864343d93eb1a2710fe6d8b5976c6bebe159e30e7aa69ea1c1905fabca8b7",
     "expression.js": "56cc04164d8d004fb6985c1b118415b05617c086dcd8549b5bdd701e61c41731",
