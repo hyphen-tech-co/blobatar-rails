@@ -27,6 +27,8 @@ export default class extends Controller {
       this.element.addEventListener("blobatar:update", this.onUpdate);
       document.addEventListener("turbo:before-cache", this.onCache);
       document.addEventListener("turbo:load", this.onLoad);
+      // Native hash navigation can cache the page without firing turbo:load.
+      window.addEventListener("hashchange", this.onLoad);
       this.active = true;
       this.paint();
       if (this.hasReactionValue) this.consumeReaction(this.reactionValue);
@@ -38,6 +40,7 @@ export default class extends Controller {
     this.element.removeEventListener("blobatar:update", this.onUpdate);
     document.removeEventListener("turbo:before-cache", this.onCache);
     document.removeEventListener("turbo:load", this.onLoad);
+    window.removeEventListener("hashchange", this.onLoad);
   }
 
   suspend() {

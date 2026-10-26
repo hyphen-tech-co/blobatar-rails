@@ -1,1 +1,7 @@
-<main><header><a href="/" class="wordmark">blobatar<span> / rails</span></a></header><section><p class="eyebrow">TURBO NAVIGATION CHECK</p><h1>A new page.<br>The same little world.</h1><%= blobatar_tag "next-page", size: 180, expression: :wink, animate: :always, title: "Next page avatar" %><p><a href="/hotwire">← Back to the playground</a></p></section></main>
+<% content_for :title, "Turbo navigation · blobatar-rails" %>
+<main class="guide">
+  <header class="guide-header"><a href="/hotwire#frames">← Usage guide</a><a href="/">blobatar-rails</a></header>
+  <section class="guide-intro"><div><p class="guide-kicker">TURBO DRIVE / LIVE EXAMPLE</p><h1>A normal Turbo visit.</h1><p>The previous page’s avatars disconnected automatically.<br>Use your browser’s Back button to restore the guide.</p></div><%= blobatar_tag "next-page", size: 96, expression: :wink, animate: :always, title: "Next page avatar" %></section>
+  <p>Any temporary reaction is cleared before the guide is cached. Its base pose is restored when you return.</p>
+  <a class="guide-text-link" href="/hotwire#frames">Back to the usage guide →</a>
+</main>

@@ -42,7 +42,7 @@ class SiteTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "component examples and retained Hotwire demo still serve" do
+  test "component examples and the usage guide still serve" do
     get "/components"
     assert_response :success
     assert_select ".showcase-section", count: 5

@@ -9,6 +9,95 @@ const expressions = ["idle", "happy", "sad", "mad", "surprised", "wink", "sleepy
 const ready = async (page) => { await page.goto("/hotwire"); await page.waitForFunction(() => window.Stimulus && document.querySelector("#agent-avatar .mo-root")); };
 const send = async (page, id, payload) => page.evaluate(({ id, payload }) => { document.getElementById(id).dispatchEvent(new CustomEvent("blobatar:update", { detail: payload })); }, { id, payload });
 
+test("usage guide has copyable literal code, section navigation and responsive Rails styling", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await ready(page);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Usage guide");
+  await expect(page).toHaveTitle("Usage guide · blobatar-rails");
+  const snippet = page.locator("#installation .guide-code").first();
+  const source = await snippet.locator("code").textContent();
+  await snippet.getByRole("button", { name: "Copy Gemfile", exact: true }).click();
+  await expect(snippet.getByRole("status")).toHaveText("Copied");
+  expect(await page.evaluate(() => window.navigator.clipboard.readText())).toBe(source);
+  await expect(page.locator("#rendering pre")).toContainText('<%= blobatar_tag "agent-1"');
+  await page.getByRole("navigation", { name: "On this page" }).getByRole("link", { name: "Turbo Streams", exact: true }).click();
+  await expect(page).toHaveURL(/#streams$/);
+  await expect(page.locator("#streams-title")).toBeInViewport();
+  for (const width of [320, 390, 768, 1280]) {
+    await page.setViewportSize({ width, height: 844 });
+    await ready(page);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect(await page.locator("body").evaluate((element) => window.getComputedStyle(element).backgroundColor)).toBe("rgb(240, 231, 233)");
+    for (const link of await page.locator(".guide-toc a").all()) {
+      const href = await link.getAttribute("href");
+      await expect(page.locator(href)).toHaveCount(1);
+    }
+  }
+});
+
+test("guide copy failures offer manual selection without losing the code", async ({ page }) => {
+  await page.addInitScript(() => { window.navigator.clipboard.writeText = async () => { throw new Error("Clipboard denied"); }; });
+  await ready(page);
+  const snippet = page.locator("#installation .guide-code").first();
+  await snippet.getByRole("button").click();
+  await expect(snippet.getByRole("status")).toContainText("Select the code");
+  await expect(snippet.locator("pre")).toContainText('gem "blobatar-rails"');
+});
+
+test("guide section links only scroll and preserve live example state and SVG nodes", async ({ page }) => {
+  await ready(page);
+  await page.locator("#expression").selectOption("mad");
+  await page.getByRole("button", { name: "Run successful task" }).click();
+  await expect(page.locator("#agent-status")).toHaveText("Completed successfully");
+  await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "happy");
+  await page.getByRole("link", { name: "Replace frame" }).click();
+  await expect(page.locator("#frame-avatar")).toHaveAttribute("data-blobatar-name-value", "frame-next");
+  await page.evaluate(() => { window.guideAvatar = document.querySelector("#agent-avatar svg"); });
+  for (const link of await page.locator(".guide-toc a").all()) {
+    const href = await link.getAttribute("href");
+    await link.click();
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+    await expect(page.locator(`${href} h2`)).toBeInViewport();
+    await expect(page.locator("#agent-status")).toHaveText("Completed successfully");
+    await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "happy");
+    await expect(page.locator("#expression-avatar")).toHaveAttribute("data-blobatar-current-expression", "mad");
+    await expect(page.locator("#frame-avatar")).toHaveAttribute("data-blobatar-name-value", "frame-next");
+    expect(await page.evaluate(() => document.querySelector("#agent-avatar svg") === window.guideAvatar)).toBe(true);
+  }
+  await page.getByRole("link", { name: "Test a Turbo visit" }).click();
+  await expect(page).toHaveURL(/\/other$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/hotwire#javascript$/);
+  await expect(page.locator("#agent-status")).toHaveText("Completed successfully");
+  await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "happy");
+  await expect(page.locator("#frame-avatar")).toHaveAttribute("data-blobatar-name-value", "frame-next");
+});
+
+test("guide live examples remain interactive after native section navigation", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await ready(page);
+  await page.evaluate(() => {
+    window.sectionChange = new Promise((resolve) => window.addEventListener("hashchange", () => resolve(), { once: true }));
+  });
+  await page.getByRole("navigation", { name: "On this page" }).getByRole("link", { name: "Expressions & motion" }).click();
+  await page.evaluate(() => window.sectionChange);
+  const originalStyle = await page.locator("#expression-avatar svg").getAttribute("style");
+  await page.locator("#expression").selectOption("mad");
+  await expect(page.locator("#expression-avatar")).toHaveAttribute("data-blobatar-current-expression", "mad");
+  await expect(page.locator("#expression-avatar svg")).not.toHaveAttribute("style", originalStyle);
+  await expect.poll(() => page.locator("#expression-avatar svg").evaluate((svg) => svg.getAnimations({ subtree: true }).filter((animation) => animation.playState === "running").length)).toBeGreaterThan(0);
+  await page.evaluate(() => {
+    window.sectionChange = new Promise((resolve) => window.addEventListener("hashchange", () => resolve(), { once: true }));
+  });
+  await page.getByRole("navigation", { name: "On this page" }).getByRole("link", { name: "Turbo Streams", exact: true }).click();
+  await page.evaluate(() => window.sectionChange);
+  await page.getByRole("button", { name: "Run successful task" }).click();
+  await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "thinking");
+  await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "love");
+  await expect(page.locator("#agent-status")).toHaveText("Completed successfully");
+  await expect(page.locator("#agent-avatar")).toHaveAttribute("data-blobatar-current-expression", "happy");
+});
+
 test("importmap has no CDN or bundler requests, including under strict CSP", async ({ page }) => {
   await page.addInitScript(() => {
     window.cspViolations = [];
@@ -19,7 +108,7 @@ test("importmap has no CDN or bundler requests, including under strict CSP", asy
   page.on("request", (request) => { if (!request.url().startsWith("http://127.0.0.1:3100")) external.push(request.url()); });
   await ready(page);
   await expect(page.locator(".expression-grid article")).toHaveCount(14);
-  await expect(page.locator(".crowd svg")).toHaveCount(24);
+  await expect(page.locator(".crowd svg")).toHaveCount(6);
   expect(errors).toEqual([]); expect(external).toEqual([]);
   expect(await page.evaluate(() => window.cspViolations)).toEqual([]);
 });
@@ -118,7 +207,7 @@ test("Turbo cache suspends timers, gaze and listeners without growth across visi
       registry.get(`${this === document ? "document" : "window"}:${name}`)?.delete(callback);
       return originalRemove.call(this, name, callback, options);
     };
-    window.listenerCounts = () => Object.fromEntries([...registry].filter(([name]) => /turbo:before-cache|turbo:load|pointermove|pointerleave|scroll|resize/.test(name)).map(([name, callbacks]) => [name, callbacks.size]));
+    window.listenerCounts = () => Object.fromEntries([...registry].filter(([name]) => /turbo:before-cache|turbo:load|hashchange|pointermove|pointerleave|scroll|resize/.test(name)).map(([name, callbacks]) => [name, callbacks.size]));
   });
   await ready(page);
   const baseline = await page.evaluate(() => window.listenerCounts());

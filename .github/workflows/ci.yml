@@ -140,7 +140,8 @@ jobs:
           end
           page = Nokogiri::HTML(get.call("/"))
           abort "Landing SSR preview missing" unless page.at_css("#studio-preview svg")
-          abort "Hotwire SSR avatars missing" unless Nokogiri::HTML(get.call("/hotwire")).css("svg").length >= 40
+          guide = Nokogiri::HTML(get.call("/hotwire"))
+          abort "Usage guide missing" unless guide.at_css("#installation pre code") && guide.at_css("#agent-avatar svg")
           abort "Editor SSR preview missing" unless Nokogiri::HTML(get.call("/editor")).at_css("#studio-preview svg")
           abort "Component examples missing" unless Nokogiri::HTML(get.call("/components")).css(".showcase-section").length == 5
           imports = JSON.parse(page.at_css('script[type="importmap"]').text).fetch("imports")

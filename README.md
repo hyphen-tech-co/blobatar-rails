@@ -5,13 +5,13 @@ Official [blobatar](https://github.com/Alain00/blobatar) **2.7.0** for Rails + H
 ## Install from Git
 
 ```ruby
-# Gemfile — main becomes available after the implementation PR is merged
+# Gemfile
 gem "blobatar-rails",
     git: "git@github.com:hyphen-tech-co/blobatar-rails.git",
     branch: "main"
 ```
 
-Not yet published to RubyGems. SSH requires GitHub SSH access; HTTPS (`https://github.com/hyphen-tech-co/blobatar-rails.git`) is also possible. Before [the implementation PR](https://github.com/hyphen-tech-co/blobatar-rails/pull/1) is merged, try `branch: "devin/1792945394-blobatar-hotwire"`. Bundler locks the resolved commit; update deliberately with `bundle update blobatar-rails`.
+Not yet published to RubyGems. SSH requires GitHub SSH access; HTTPS (`https://github.com/hyphen-tech-co/blobatar-rails.git`) is also possible. Bundler locks the resolved commit; update deliberately with `bundle update blobatar-rails`.
 
 Start with Rails using **importmap-rails, stimulus-rails, turbo-rails** and Propshaft or Sprockets:
 
@@ -130,7 +130,7 @@ bundle exec ruby bin/rails server
 
 From a repository checkout, the Ruby 3.4 / Rails 8.0 demo provides an upstream-inspired landing page at `/`, an `/editor` with ten named shapes, six tones, multi-select trait overrides, live code and SVG/PNG downloads, and five compositions at `/components` (presence, agent list, members table, caret-following password field and group chat). Fonts and browser modules are self-hosted; the site is ERB/Stimulus, not a React or shadcn runtime. There is no wall, posting API or persistence. The password example never submits or stores its input.
 
-The original integration testbed remains at `/hotwire`: all expressions, animation modes, pointer/element/coordinate gaze, Turbo Stream loading → success/error reactions, Turbo Frame replacement and independent avatars. `/avatar` returns Ruby-rendered SVG for the editor's HTTP example. Its separate Gemfile/lockfile keeps the hosted demo reproducible without installing the gem's development tools. No npm or database is needed to run it. See [Laravel Cloud deployment](docs/deployment.md) to publish this demo; it is not a production app template.
+The usage guide at `/hotwire` covers installation, the view helper, appearance options, expressions/motion, gaze, Turbo Streams, Frames/cache, collections and JavaScript events. Copyable code sits alongside live examples; the same pages exercise the integration and lifecycle tests. `/avatar` returns Ruby-rendered SVG for the editor's HTTP example. The demo's separate Gemfile/lockfile keeps it reproducible without installing the gem's development tools. No npm or database is needed to run it. See [Laravel Cloud deployment](docs/deployment.md) to publish this demo; it is not a production app template.
 
 CI defines Rails **7.1 / 7.2 / 8.0 / 8.1**, Propshaft/Sprockets, and Ruby 3.1/Rails 7.1 minimum checks. Browser/visual tests use Linux Chromium. See [CONTRIBUTING.md](CONTRIBUTING.md) for commands/test boundaries and [docs/upstream.md](docs/upstream.md) for API research and architecture.
 
