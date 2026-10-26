@@ -98,6 +98,15 @@ test("copy, Ruby/HTTP tabs and SVG/PNG downloads reflect the current config", as
 test("mobile layouts fit and native popovers close with Escape; Turbo visits keep editor state", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await ready(page, "/");
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    const heading = await page.locator(".hero h1").boundingBox();
+    const navigation = await page.locator(".site-nav").boundingBox();
+    const avatar = await page.locator(".hero-avatar").boundingBox();
+    expect(heading.y).toBe(48);
+    expect(navigation.y + navigation.height).toBeLessThanOrEqual(heading.y);
+    expect(avatar.width).toBeCloseTo(width * 0.26, 0);
+  }
   await page.getByRole("button", { name: "Options", exact: true }).click();
   await expect(page.locator("#hero-options")).toBeVisible();
   await page.keyboard.press("Escape");

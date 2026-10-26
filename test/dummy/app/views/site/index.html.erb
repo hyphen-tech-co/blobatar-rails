@@ -2,7 +2,7 @@
   <%= tag.section class: 'hero site-shell', data: studio_data, 'aria-label': 'Blobatar playground' do %>
     <%= render 'nav' %>
     <div class="hero-intro">
-      <div><h1>blobatar</h1><p class="hero-description">Deterministic geometric blobatars from any string. Ruby on the server. Hotwire in the browser.</p></div>
+      <div><h1>blobatar</h1><p class="hero-description">Deterministic geometric blobatars from any string. Ruby + Hotwire, no Node required.</p></div>
       <div class="hero-playground">
         <div class="name-sentence"><label for="seed">Let’s find your blobatar</label><span class="name-blank"><span data-studio-target="measure" aria-hidden="true"><%= @name.presence || 'someone' %></span><input id="seed" value="<%= @name %>" placeholder="someone" size="1" autocomplete="off" spellcheck="false" data-studio-target="name" data-action="input->studio#name"></span><button type="button" class="icon-button" popovertarget="hero-options" aria-label="Options" data-action="studio#position"><%= studio_icon(:tune) %></button></div>
         <button type="button" class="hero-react" aria-label="React" data-action="studio#react"><%= blobatar_tag @name, **@options.symbolize_keys, expression: @expression, animate: @motion, gaze: :pointer, id: 'studio-preview', class: 'hero-avatar', title: "Blobatar for #{@name}", data: { studio_target: 'preview' } %></button>
